@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://codex.dev/schemas/emotion.schema.json",
+  "title": "Emotion",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "고유 식별자"
+    },
+    "label": {
+      "type": "string",
+      "minLength": 1,
+      "description": "감정명"
+    },
+    "score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "감정 강도"
+    },
+    "context": {
+      "type": "string",
+      "description": "감정이 추출된 문맥"
+    }
+  },
+  "required": [
+    "id",
+    "label",
+    "score"
+  ],
+  "additionalProperties": false
+}

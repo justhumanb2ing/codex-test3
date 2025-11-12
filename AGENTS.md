@@ -9,6 +9,8 @@ Key principles:
 - Maintain clear separation between data logic and UI presentation.
 - Write test code before implementation for any feature considered critical or core to the system.
 - Prefer simple, explicit state management and consistent naming conventions across the codebase.
+- All functions considered as core must include JSDoc-style documentation comments.
+- Follow the Server-first principle and aim for minimal JavaScript bundles.
 
 ## Structure Design Phase
 - Create the following project folder structure:

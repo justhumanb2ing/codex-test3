@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://codex.dev/schemas/achievement.schema.json",
+  "title": "Achievement",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "고유 식별자"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "description": "업적 제목"
+    },
+    "description": {
+      "type": "string",
+      "description": "업적 설명"
+    },
+    "achieved_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time",
+      "description": "완료 일시"
+    },
+    "related_book_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid",
+      "description": "연관 도서 ID"
+    }
+  },
+  "required": [
+    "id",
+    "title"
+  ],
+  "additionalProperties": false
+}

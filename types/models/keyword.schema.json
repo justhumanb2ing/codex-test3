@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://codex.dev/schemas/keyword.schema.json",
+  "title": "Keyword",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "고유 식별자"
+    },
+    "value": {
+      "type": "string",
+      "minLength": 1,
+      "description": "키워드 텍스트"
+    },
+    "category": {
+      "type": "string",
+      "description": "키워드 분류"
+    },
+    "weight": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "추천 가중치"
+    }
+  },
+  "required": [
+    "id",
+    "value"
+  ],
+  "additionalProperties": false
+}

@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Overview
+
+Supabase를 기반으로 로그인 · 로그아웃 · 회원가입 플로우를 구현한 Next.js(App Router) 예제입니다. 서버 액션과 SSR을 사용하여 최소한의 클라이언트 자바스크립트로 인증을 처리합니다.
 
 ## Getting Started
 
-First, run the development server:
+1. 의존성 설치
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
+bun install
+```
+
+2. 환경 변수 설정
+
+```bash
+cp .env.example .env.local
+# .env.local 파일에 본인의 Supabase URL과 anon key를 입력하세요.
+```
+
+| 변수 | 설명 |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase 프로젝트 URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon API key |
+| `NEXT_PUBLIC_SITE_URL` | OAuth 리다이렉트에 사용할 공개 사이트 URL |
+
+3. 개발 서버 실행
+
+```bash
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. 테스트 실행
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+bun test
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Folder Structure
 
-## Learn More
+| 폴더 | 설명 |
+| --- | --- |
+| `app/` | Next.js App Router 경로와 서버 액션 |
+| `components/` | 재사용 가능한 UI 및 Auth 컴포넌트 |
+| `components/ui/` | shadcn/ui 기반 버튼 등 UI 프리미티브 |
+| `config/` | Supabase와 같은 공용 설정 모듈 |
+| `lib/` | 검색 파라미터 등 공유 유틸리티 |
+| `services/` | Supabase 인증과 같은 데이터/도메인 로직 |
+| `tests/` | 단위/통합 테스트 파일 (Bun test 실행 대상) |
+| `types/` | JSON Schema 등 공용 타입 정의 |
 
-To learn more about Next.js, take a look at the following resources:
+## Auth Pages
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `/login` – 이메일/비밀번호 로그인과 Kakao OAuth 버튼, 서버 액션 기반 오류 처리
+- `/signup` – 비밀번호 확인 + 이메일 검증 안내, Kakao OAuth 온보딩 옵션
+- `/logout` – 로그아웃 서버 액션을 노출하는 확인 페이지
+- `/auth/callback` – Kakao OAuth 리디렉션 후 세션을 확정하고 원하는 경로로 이동
+- `/` – 현재 세션 정보를 SSR에서 렌더링하고 상태에 따라 CTA 제어
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## JSON Schemas
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`types/models` 디렉터리에는 Book, Emotion, Keyword, Achievement 엔터티를 JSON Schema로 정의하여 API 혹은 데이터베이스와의 계약을 문서화했습니다. Kakao OAuth와 같은 소셜 로그인을 추가로 붙일 때도 동일한 구조를 재사용할 수 있습니다.

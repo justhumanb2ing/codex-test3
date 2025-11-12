@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://codex.dev/schemas/book.schema.json",
+  "title": "Book",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "고유 식별자"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "description": "도서 제목"
+    },
+    "author": {
+      "type": "string",
+      "minLength": 1,
+      "description": "저자명"
+    },
+    "summary": {
+      "type": "string",
+      "description": "짧은 소개 문구"
+    },
+    "published_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date",
+      "description": "출판 일자"
+    },
+    "keywords": {
+      "type": "array",
+      "description": "도서를 설명하는 키워드 목록",
+      "items": {
+        "$ref": "./keyword.schema.json"
+      }
+    }
+  },
+  "required": [
+    "id",
+    "title",
+    "author"
+  ],
+  "additionalProperties": false
+}
