@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -54,6 +56,11 @@ export const ProfileMenu = ({ profile }: { profile: ProfileInfo }) => {
           </span>
           <span className="text-xs text-muted-foreground">{profile.email}</span>
         </DropdownMenuLabel>
+        <DropdownMenuItem asChild>
+          <Link href="/profile" className="w-full cursor-pointer text-sm">
+            프로필 설정
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <form action={signOutAction}>
           <DropdownMenuItem asChild>

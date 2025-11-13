@@ -71,7 +71,6 @@ export const createReadingEntryAction = async (
     content,
     userKeywords: keywords,
   }
-  console.log(payload)
   const result = await createReadingEntry(payload)
 
   if (!result.success || !result.data) {

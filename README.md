@@ -22,6 +22,11 @@ cp .env.example .env.local
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase 프로젝트 URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon API key |
 | `NEXT_PUBLIC_SITE_URL` | OAuth 리다이렉트에 사용할 공개 사이트 URL |
+| `R2_ENDPOINT` | Cloudflare R2 S3 호환 엔드포인트 URL |
+| `R2_ACCESS_KEY_ID` | R2 액세스 키 |
+| `R2_SECRET_ACCESS_KEY` | R2 시크릿 키 |
+| `R2_BUCKET_NAME` | 프로필 이미지를 저장할 R2 버킷명 |
+| `R2_PUBLIC_BASE_URL` | 업로드된 객체를 접근할 수 있는 퍼블릭 베이스 URL(예: CDN 도메인) |
 
 3. 개발 서버 실행
 
