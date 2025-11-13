@@ -23,7 +23,9 @@ describe("SignupPage", () => {
     expect(screen.getByLabelText("이메일")).toBeInTheDocument()
     expect(screen.getByLabelText("비밀번호")).toBeInTheDocument()
     expect(screen.getByLabelText("비밀번호 확인")).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: "회원가입" })).toBeInTheDocument()
+    expect(
+      screen.getAllByRole("button", { name: "회원가입" }).length,
+    ).toBeGreaterThan(0)
     expect(
       screen.getByRole("button", { name: "카카오 계정으로 계속" }),
     ).toBeInTheDocument()

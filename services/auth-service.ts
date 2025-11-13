@@ -103,6 +103,7 @@ export const signInWithKakao = async (nextPath = "/"): Promise<OAuthResult> => {
     provider: "kakao",
     options: {
       redirectTo: buildAuthCallbackUrl(nextPath),
+      scopes: "profile_nickname profile_image",
     },
   });
 
