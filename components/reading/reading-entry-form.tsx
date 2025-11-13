@@ -1,33 +1,31 @@
-"use client"
+"use client";
 
-import { useActionState, useState } from "react"
+import { useActionState, useState } from "react";
 
 import {
   createReadingEntryAction,
   type CreateReadingEntryActionState,
-} from "@/app/(protected)/reading/actions"
-import { Button } from "@/components/ui/button"
+} from "@/app/(protected)/reading/actions";
+import { Button } from "@/components/ui/button";
 
 interface ReadingEntryFormProps {
-  initialErrorMessage?: string
+  initialErrorMessage?: string;
 }
 
-const buildInitialState = (
-  error?: string,
-): CreateReadingEntryActionState => ({
+const buildInitialState = (error?: string): CreateReadingEntryActionState => ({
   error,
-})
+});
 
 export const ReadingEntryForm = ({
   initialErrorMessage,
 }: ReadingEntryFormProps) => {
   const [state, formAction, isPending] = useActionState(
     createReadingEntryAction,
-    buildInitialState(initialErrorMessage),
-  )
-  const [bookTitle, setBookTitle] = useState("")
-  const [content, setContent] = useState("")
-  const [keywords, setKeywords] = useState("")
+    buildInitialState(initialErrorMessage)
+  );
+  const [bookTitle, setBookTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [keywords, setKeywords] = useState("");
 
   return (
     <form action={formAction} className="space-y-6">
@@ -50,7 +48,10 @@ export const ReadingEntryForm = ({
         />
       </div>
       <div className="space-y-2">
-        <label className="text-sm font-medium text-foreground" htmlFor="content">
+        <label
+          className="text-sm font-medium text-foreground"
+          htmlFor="content"
+        >
           감상문
         </label>
         <textarea
@@ -67,7 +68,10 @@ export const ReadingEntryForm = ({
         </p>
       </div>
       <div className="space-y-2">
-        <label className="text-sm font-medium text-foreground" htmlFor="keywords">
+        <label
+          className="text-sm font-medium text-foreground"
+          htmlFor="keywords"
+        >
           키워드 (쉼표로 구분)
         </label>
         <input
@@ -92,5 +96,5 @@ export const ReadingEntryForm = ({
         {isPending ? "등록 중..." : "기록 저장"}
       </Button>
     </form>
-  )
-}
+  );
+};

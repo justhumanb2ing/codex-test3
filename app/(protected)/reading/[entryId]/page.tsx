@@ -1,15 +1,15 @@
-import Link from "next/link"
-import { notFound, redirect } from "next/navigation"
+import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
 
-import { ReadingEntrySummary } from "@/components/reading/reading-entry-summary"
-import { Button } from "@/components/ui/button"
-import { getCurrentUser } from "@/services/auth-service"
-import { getReadingEntry } from "@/services/reading-log-service"
+import { ReadingEntrySummary } from "@/components/reading/reading-entry-summary";
+import { Button } from "@/components/ui/button";
+import { getCurrentUser } from "@/services/auth-service";
+import { getReadingEntry } from "@/services/reading-log-service";
 
 interface PageProps {
   params: {
-    entryId: string
-  }
+    entryId: string;
+  };
 }
 
 const formatDateTime = (value: string) =>
@@ -19,18 +19,17 @@ const formatDateTime = (value: string) =>
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-  }).format(new Date(value))
+  }).format(new Date(value));
 
-export default async function ReadingEntryDetailPage({
-  params,
-}: PageProps) {
-  const user = await getCurrentUser()
+export default async function ReadingEntryDetailPage({ params }: PageProps) {
+  const { entryId } = await params;
+  const user = await getCurrentUser();
 
   if (!user) {
-    redirect("/login")
+    redirect("/login");
   }
 
-  const result = await getReadingEntry(user.id, params.entryId)
+  const result = await getReadingEntry(user.id, entryId);
 
   if (!result.success) {
     return (
@@ -45,13 +44,13 @@ export default async function ReadingEntryDetailPage({
           <Link href="/reading">목록으로 돌아가기</Link>
         </Button>
       </section>
-    )
+    );
   }
 
-  const entry = result.data
+  const entry = result.data;
 
   if (!entry) {
-    notFound()
+    notFound();
   }
 
   return (
@@ -62,7 +61,9 @@ export default async function ReadingEntryDetailPage({
             <p className="text-xs uppercase tracking-wide text-muted-foreground">
               {formatDateTime(entry.createdAt)}
             </p>
-            <h1 className="text-3xl font-semibold text-foreground">{entry.bookTitle}</h1>
+            <h1 className="text-3xl font-semibold text-foreground">
+              {entry.bookTitle}
+            </h1>
           </div>
           <Button asChild variant="outline">
             <Link href="/reading">목록으로 돌아가기</Link>
@@ -97,5 +98,5 @@ export default async function ReadingEntryDetailPage({
         </div>
       </section>
     </article>
-  )
+  );
 }
