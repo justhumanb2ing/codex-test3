@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://codex.dev/schemas/reading-entry.schema.json",
+  "title": "ReadingEntry",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "고유 식별자"
+    },
+    "user_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "작성한 사용자 식별자"
+    },
+    "book_title": {
+      "type": "string",
+      "minLength": 1,
+      "description": "읽은 도서 제목"
+    },
+    "content": {
+      "type": "string",
+      "minLength": 1,
+      "description": "사용자가 입력한 감상문 원문"
+    },
+    "user_keywords": {
+      "type": "array",
+      "description": "사용자가 직접 입력한 키워드 목록",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "ai_summary": {
+      "type": "string",
+      "description": "AI가 생성한 요약"
+    },
+    "ai_emotions": {
+      "type": "array",
+      "description": "AI가 추출한 감정 분석 결과",
+      "items": {
+        "$ref": "./emotion.schema.json"
+      }
+    },
+    "ai_topics": {
+      "type": "array",
+      "description": "AI가 제안한 주제/키워드",
+      "items": {
+        "$ref": "./keyword.schema.json"
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "레코드 생성 시각"
+    }
+  },
+  "required": [
+    "id",
+    "user_id",
+    "book_title",
+    "content",
+    "user_keywords",
+    "ai_summary",
+    "ai_emotions",
+    "ai_topics",
+    "created_at"
+  ],
+  "additionalProperties": false
+}

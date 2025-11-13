@@ -1,6 +1,6 @@
 ## Overview
 
-Supabase를 기반으로 로그인 · 로그아웃 · 회원가입 플로우를 구현한 Next.js(App Router) 예제입니다. 서버 액션과 SSR을 사용하여 최소한의 클라이언트 자바스크립트로 인증을 처리합니다.
+Supabase를 기반으로 로그인 · 로그아웃 · 회원가입 플로우를 구현한 Next.js(App Router) 예제입니다. 서버 액션과 SSR을 사용하여 최소한의 클라이언트 자바스크립트로 인증을 처리합니다. 추가로 독서 기록을 등록하면 AI 요약과 감정/주제 분석 결과를 함께 저장하고 확인할 수 있습니다.
 
 ## Getting Started
 
@@ -58,4 +58,4 @@ bun test
 
 ## JSON Schemas
 
-`types/models` 디렉터리에는 Book, Emotion, Keyword, Achievement 엔터티를 JSON Schema로 정의하여 API 혹은 데이터베이스와의 계약을 문서화했습니다. Kakao OAuth와 같은 소셜 로그인을 추가로 붙일 때도 동일한 구조를 재사용할 수 있습니다.
+`types/models` 디렉터리에는 Book, Emotion, Keyword, Achievement, ReadingEntry 엔터티를 JSON Schema로 정의하여 API 혹은 데이터베이스와의 계약을 문서화했습니다. Kakao OAuth와 같은 소셜 로그인을 추가로 붙일 때도 동일한 구조를 재사용할 수 있습니다.
