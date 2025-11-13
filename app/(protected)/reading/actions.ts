@@ -7,6 +7,7 @@ import {
   createReadingEntry,
   type CreateReadingEntryInput,
   type ReadingLogResult,
+  deleteReadingEntry,
 } from "@/services/reading-log-service"
 import { generateReadingInsight } from "@/services/reading-insight-service"
 
@@ -84,4 +85,45 @@ export const createReadingEntryAction = async (
   }
 
   redirect(`/reading/${result.data.id}`)
+}
+
+export interface DeleteReadingEntryActionResult {
+  success: boolean
+  error?: string
+}
+
+const DELETE_ERROR_MESSAGE = "기록을 삭제하는 중 문제가 발생했습니다."
+
+/**
+ * 현재 사용자의 독서 기록을 삭제합니다.
+ */
+export const deleteReadingEntryAction = async (
+  entryId: string,
+): Promise<DeleteReadingEntryActionResult> => {
+  if (!entryId) {
+    return {
+      success: false,
+      error: "삭제할 기록을 찾을 수 없습니다.",
+    }
+  }
+
+  const user = await getCurrentUser()
+
+  if (!user) {
+    return {
+      success: false,
+      error: "로그인이 필요한 기능입니다.",
+    }
+  }
+
+  const result = await deleteReadingEntry(user.id, entryId)
+
+  if (!result.success) {
+    return {
+      success: false,
+      error: result.error ?? DELETE_ERROR_MESSAGE,
+    }
+  }
+
+  return { success: true }
 }

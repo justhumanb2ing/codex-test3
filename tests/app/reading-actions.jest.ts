@@ -1,6 +1,9 @@
-import { createReadingEntryAction } from "@/app/(protected)/reading/actions"
+import {
+  createReadingEntryAction,
+  deleteReadingEntryAction,
+} from "@/app/(protected)/reading/actions"
 import { getCurrentUser } from "@/services/auth-service"
-import { createReadingEntry } from "@/services/reading-log-service"
+import { createReadingEntry, deleteReadingEntry } from "@/services/reading-log-service"
 import { generateReadingInsight } from "@/services/reading-insight-service"
 import { redirect } from "next/navigation"
 
@@ -14,6 +17,7 @@ jest.mock("@/services/auth-service", () => ({
 
 jest.mock("@/services/reading-log-service", () => ({
   createReadingEntry: jest.fn(),
+  deleteReadingEntry: jest.fn(),
 }))
 
 jest.mock("@/services/reading-insight-service", () => ({
@@ -25,6 +29,9 @@ const mockedGetCurrentUser = getCurrentUser as jest.MockedFunction<
 >
 const mockedCreateReadingEntry = createReadingEntry as jest.MockedFunction<
   typeof createReadingEntry
+>
+const mockedDeleteReadingEntry = deleteReadingEntry as jest.MockedFunction<
+  typeof deleteReadingEntry
 >
 const mockedGenerateReadingInsight =
   generateReadingInsight as jest.MockedFunction<typeof generateReadingInsight>
@@ -108,5 +115,59 @@ describe("createReadingEntryAction", () => {
     const state = await createReadingEntryAction(undefined, formData)
 
     expect(state).toEqual({ error: "저장 실패" })
+  })
+})
+
+describe("deleteReadingEntryAction", () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  it("returns error when entry id is missing", async () => {
+    const result = await deleteReadingEntryAction("")
+
+    expect(result).toEqual({
+      success: false,
+      error: "삭제할 기록을 찾을 수 없습니다.",
+    })
+  })
+
+  it("returns error when user is not authenticated", async () => {
+    mockedGetCurrentUser.mockResolvedValue(null)
+
+    const result = await deleteReadingEntryAction("entry-1")
+
+    expect(result).toEqual({
+      success: false,
+      error: "로그인이 필요한 기능입니다.",
+    })
+  })
+
+  it("returns error when service fails", async () => {
+    mockedGetCurrentUser.mockResolvedValue({ id: "user-1" } as never)
+    mockedDeleteReadingEntry.mockResolvedValue({
+      success: false,
+      error: "삭제 실패",
+    })
+
+    const result = await deleteReadingEntryAction("entry-1")
+
+    expect(result).toEqual({
+      success: false,
+      error: "삭제 실패",
+    })
+  })
+
+  it("deletes the entry when service succeeds", async () => {
+    mockedGetCurrentUser.mockResolvedValue({ id: "user-1" } as never)
+    mockedDeleteReadingEntry.mockResolvedValue({
+      success: true,
+      data: null,
+    })
+
+    const result = await deleteReadingEntryAction("entry-1")
+
+    expect(mockedDeleteReadingEntry).toHaveBeenCalledWith("user-1", "entry-1")
+    expect(result).toEqual({ success: true })
   })
 })
