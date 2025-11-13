@@ -1,16 +1,18 @@
-import { render, screen } from "@testing-library/react"
-
 import NewReadingEntryPage from "@/app/(protected)/reading/new/page"
+import { redirect } from "next/navigation"
 
-jest.mock("@/components/reading/reading-entry-form", () => ({
-  ReadingEntryForm: () => <form aria-label="reading-entry-form" />,
+jest.mock("next/navigation", () => ({
+  redirect: jest.fn(),
 }))
 
-describe("NewReadingEntryPage", () => {
-  it("renders heading and form", () => {
-    render(<NewReadingEntryPage />)
+const mockedRedirect = redirect as jest.MockedFunction<typeof redirect>
 
-    expect(screen.getByText("독서 기록 작성")).toBeInTheDocument()
-    expect(screen.getByLabelText("reading-entry-form")).toBeInTheDocument()
+describe("NewReadingEntryPage", () => {
+  it("redirects to reading page with compose query", () => {
+    mockedRedirect.mockImplementation(() => undefined as never)
+
+    NewReadingEntryPage()
+
+    expect(mockedRedirect).toHaveBeenCalledWith("/reading?compose=new")
   })
 })

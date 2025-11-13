@@ -4,11 +4,8 @@ import ReadingEntriesPage from "@/app/(protected)/reading/page"
 import { getCurrentUser } from "@/services/auth-service"
 import { listReadingEntries } from "@/services/reading-log-service"
 
-jest.mock("next/link", () => ({
-  __esModule: true,
-  default: ({ children, ...props }: { children: React.ReactNode }) => (
-    <a {...props}>{children}</a>
-  ),
+jest.mock("@/components/reading/reading-entry-modal", () => ({
+  ReadingEntryModal: () => <div data-testid="reading-entry-modal" />,
 }))
 
 jest.mock("@/services/auth-service", () => ({
@@ -47,7 +44,7 @@ describe("ReadingEntriesPage", () => {
       ],
     })
 
-    const ui = await ReadingEntriesPage()
+    const ui = await ReadingEntriesPage({ searchParams: {} })
     render(ui)
 
     expect(screen.getByText("독서 기록")).toBeInTheDocument()
@@ -61,7 +58,7 @@ describe("ReadingEntriesPage", () => {
       error: "목록을 불러오지 못했습니다.",
     })
 
-    const ui = await ReadingEntriesPage()
+    const ui = await ReadingEntriesPage({ searchParams: {} })
     render(ui)
 
     expect(
