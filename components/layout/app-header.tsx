@@ -6,12 +6,20 @@ import { getCurrentUser } from "@/services/auth-service"
 
 const buildProfile = (user: Awaited<ReturnType<typeof getCurrentUser>>) => {
   if (!user) return null
+  const metadata = user.user_metadata ?? {}
+  const name =
+    (metadata?.custom_full_name as string | undefined) ??
+    (metadata?.full_name as string | undefined) ??
+    (metadata?.name as string | undefined)
+  const avatarUrl =
+    (metadata?.custom_avatar_url as string | undefined) ??
+    (metadata?.avatar_url as string | undefined) ??
+    (metadata?.picture as string | undefined)
+
   return {
     email: user.email ?? "",
-    name: (user.user_metadata?.full_name as string | undefined) ?? undefined,
-    avatarUrl:
-      (user.user_metadata?.avatar_url as string | undefined) ??
-      (user.user_metadata?.picture as string | undefined),
+    name: name ?? undefined,
+    avatarUrl,
   }
 }
 

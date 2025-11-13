@@ -47,12 +47,18 @@ const buildCookieAdapter = (
     value: string
     options: CookieOptions
   }[]) {
-    if (!cookieSetter?.set) {
-      return
-    }
+    const target = cookieSetter ?? cookieStore
 
     cookiesToSet.forEach(({ name, value, options }) => {
-      cookieSetter.set({ name, value, ...(options ?? {}) })
+      try {
+        target.set({ name, value, ...(options ?? {}) })
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : String(error)
+        if (!message.includes("Cookies can only be modified")) {
+          throw error
+        }
+      }
     })
   },
 })

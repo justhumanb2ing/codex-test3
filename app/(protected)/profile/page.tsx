@@ -3,8 +3,11 @@ import { redirect } from "next/navigation"
 import { getCurrentUser } from "@/services/auth-service"
 import { ProfileEditModal } from "@/components/profile/profile-edit-modal"
 
-const buildDisplayName = (metadata: Record<string, unknown>, fallback?: string) => {
-  const nameFields = ["full_name", "name", "nickname"]
+const buildDisplayName = (
+  metadata: Record<string, unknown>,
+  fallback?: string,
+) => {
+  const nameFields = ["custom_full_name", "full_name", "name", "nickname"]
   for (const field of nameFields) {
     const value = metadata?.[field]
     if (typeof value === "string" && value.trim().length > 0) {
@@ -15,7 +18,7 @@ const buildDisplayName = (metadata: Record<string, unknown>, fallback?: string) 
 }
 
 const buildAvatarUrl = (metadata: Record<string, unknown>) => {
-  const candidates = ["avatar_url", "picture"]
+  const candidates = ["custom_avatar_url", "avatar_url", "picture"]
   for (const field of candidates) {
     const value = metadata?.[field]
     if (typeof value === "string" && value.trim().length > 0) {

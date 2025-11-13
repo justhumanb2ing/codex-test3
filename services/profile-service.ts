@@ -19,10 +19,12 @@ export const updateUserProfile = async (
 
   if (typeof input.fullName === "string") {
     data.full_name = input.fullName
+    data.custom_full_name = input.fullName
   }
 
   if (typeof input.avatarUrl === "string") {
     data.avatar_url = input.avatarUrl
+    data.custom_avatar_url = input.avatarUrl
   }
 
   if (Object.keys(data).length === 0) {
