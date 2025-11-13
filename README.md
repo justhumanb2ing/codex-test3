@@ -27,6 +27,7 @@ cp .env.example .env.local
 | `R2_SECRET_ACCESS_KEY` | R2 시크릿 키 |
 | `R2_BUCKET_NAME` | 프로필 이미지를 저장할 R2 버킷명 |
 | `R2_PUBLIC_BASE_URL` | 업로드된 객체를 접근할 수 있는 퍼블릭 베이스 URL(예: CDN 도메인) |
+| `KAKAO_REST_API_KEY` | 카카오 도서 검색 API 호출에 사용할 REST API 키 |
 
 3. 개발 서버 실행
 

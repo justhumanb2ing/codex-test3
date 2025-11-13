@@ -1,6 +1,6 @@
 import Link from "next/link"
 
-import { ReadingSearchBar } from "@/components/reading/reading-search-bar"
+import { BookSearchBar } from "@/components/reading/book-search-bar"
 
 export default function HomePage() {
   return (
@@ -27,7 +27,7 @@ export default function HomePage() {
           Threads 스타일의 검색 UI를 미리 체험해보세요.
         </p>
         <div className="mt-6">
-          <ReadingSearchBar />
+          <BookSearchBar />
         </div>
       </div>
     </section>
