@@ -47,9 +47,12 @@ const buildCookieAdapter = (
     value: string
     options: CookieOptions
   }[]) {
-    const target = cookieSetter ?? cookieStore
+    if (!cookieSetter?.set) {
+      return
+    }
+
     cookiesToSet.forEach(({ name, value, options }) => {
-      target.set({ name, value, ...(options ?? {}) })
+      cookieSetter.set({ name, value, ...(options ?? {}) })
     })
   },
 })
