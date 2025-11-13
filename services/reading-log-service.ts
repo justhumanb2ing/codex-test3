@@ -2,17 +2,12 @@ import "server-only"
 
 import { createSupabaseServerClient } from "@/config/supabase"
 
-import type { ReadingEmotion, ReadingTopic } from "./reading-insight-service"
-
 export interface ReadingEntry {
   id: string
   userId: string
   bookTitle: string
   content: string
   userKeywords: string[]
-  aiSummary: string
-  aiEmotions: ReadingEmotion[]
-  aiTopics: ReadingTopic[]
   createdAt: string
 }
 
@@ -21,9 +16,6 @@ export interface CreateReadingEntryInput {
   bookTitle: string
   content: string
   userKeywords: string[]
-  aiSummary: string
-  aiEmotions: ReadingEmotion[]
-  aiTopics: ReadingTopic[]
 }
 
 export interface ReadingLogResult<T> {
@@ -41,9 +33,6 @@ interface ReadingEntryRow {
   book_title: string
   content: string
   user_keywords: string[]
-  ai_summary: string
-  ai_emotions: ReadingEmotion[]
-  ai_topics: ReadingTopic[]
   created_at: string
 }
 
@@ -53,9 +42,6 @@ const mapRowToEntry = (row: ReadingEntryRow): ReadingEntry => ({
   bookTitle: row.book_title,
   content: row.content,
   userKeywords: row.user_keywords,
-  aiSummary: row.ai_summary,
-  aiEmotions: row.ai_emotions,
-  aiTopics: row.ai_topics,
   createdAt: row.created_at,
 })
 
@@ -78,9 +64,6 @@ export const createReadingEntry = async (
       book_title: input.bookTitle,
       content: input.content,
       user_keywords: input.userKeywords,
-      ai_summary: input.aiSummary,
-      ai_emotions: input.aiEmotions,
-      ai_topics: input.aiTopics,
     })
     .select()
     .single()

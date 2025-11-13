@@ -22,7 +22,7 @@ export default async function ReadingEntriesPage() {
         <div>
           <h1 className="text-2xl font-semibold text-foreground">독서 기록</h1>
           <p className="text-sm text-muted-foreground">
-            AI 요약과 감정 분석으로 정리된 감상을 확인해보세요.
+            읽고 느낀 점을 간단한 키워드와 함께 기록해보세요.
           </p>
         </div>
         <Button asChild>

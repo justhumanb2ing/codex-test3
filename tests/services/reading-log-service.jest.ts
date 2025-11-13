@@ -70,11 +70,6 @@ const buildRow = () => ({
   book_title: "데미안",
   content: "감상문",
   user_keywords: ["성장"],
-  ai_summary: "요약",
-  ai_emotions: [
-    { id: "emotion-1", label: "긍정", score: 0.8, context: "문장" },
-  ],
-  ai_topics: [{ id: "topic-1", value: "성장", weight: 1 }],
   created_at: "2024-01-01T00:00:00.000Z",
 })
 
@@ -93,9 +88,6 @@ describe("reading-log-service", () => {
       bookTitle: "데미안",
       content: "감상문",
       userKeywords: ["성장"],
-      aiSummary: "요약",
-      aiEmotions: row.ai_emotions,
-      aiTopics: row.ai_topics,
     })
 
     expect(result.success).toBe(true)
@@ -105,9 +97,6 @@ describe("reading-log-service", () => {
       bookTitle: row.book_title,
       content: row.content,
       userKeywords: row.user_keywords,
-      aiSummary: row.ai_summary,
-      aiEmotions: row.ai_emotions,
-      aiTopics: row.ai_topics,
       createdAt: row.created_at,
     })
   })
@@ -121,9 +110,6 @@ describe("reading-log-service", () => {
       bookTitle: "데미안",
       content: "감상문",
       userKeywords: [],
-      aiSummary: "요약",
-      aiEmotions: [],
-      aiTopics: [],
     })
 
     expect(result.success).toBe(false)

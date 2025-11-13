@@ -32,24 +32,6 @@
         "minLength": 1
       }
     },
-    "ai_summary": {
-      "type": "string",
-      "description": "AI가 생성한 요약"
-    },
-    "ai_emotions": {
-      "type": "array",
-      "description": "AI가 추출한 감정 분석 결과",
-      "items": {
-        "$ref": "./emotion.schema.json"
-      }
-    },
-    "ai_topics": {
-      "type": "array",
-      "description": "AI가 제안한 주제/키워드",
-      "items": {
-        "$ref": "./keyword.schema.json"
-      }
-    },
     "created_at": {
       "type": "string",
       "format": "date-time",
@@ -62,9 +44,6 @@
     "book_title",
     "content",
     "user_keywords",
-    "ai_summary",
-    "ai_emotions",
-    "ai_topics",
     "created_at"
   ],
   "additionalProperties": false

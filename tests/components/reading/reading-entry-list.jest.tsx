@@ -44,7 +44,7 @@ describe("ReadingEntryList", () => {
     ).toBeInTheDocument()
   })
 
-  it("renders entry details with topics", () => {
+  it("renders entry details with keywords", () => {
     render(
       <ReadingEntryList
         entries={[
@@ -54,12 +54,6 @@ describe("ReadingEntryList", () => {
             bookTitle: "데미안",
             content: "긴 감상문",
             userKeywords: ["성장"],
-            aiSummary: "싱클레어의 성장 이야기",
-            aiEmotions: [],
-            aiTopics: [
-              { id: "topic-1", value: "성장", weight: 1 },
-              { id: "topic-2", value: "우정", weight: 0.5 },
-            ],
             createdAt: "2024-05-01T10:00:00.000Z",
           },
         ]}
@@ -70,8 +64,8 @@ describe("ReadingEntryList", () => {
       "href",
       "/reading/entry-1",
     )
-    expect(screen.getByText("싱클레어의 성장 이야기")).toBeInTheDocument()
-    expect(screen.getByText("성장")).toBeInTheDocument()
+    expect(screen.getByText("긴 감상문")).toBeInTheDocument()
+    expect(screen.getByText("#성장")).toBeInTheDocument()
   })
 
   it("removes an entry after confirming deletion", async () => {
@@ -86,9 +80,6 @@ describe("ReadingEntryList", () => {
             bookTitle: "데미안",
             content: "감상",
             userKeywords: [],
-            aiSummary: "요약",
-            aiEmotions: [],
-            aiTopics: [],
             createdAt: "2024-05-01T10:00:00.000Z",
           },
           {
@@ -97,9 +88,6 @@ describe("ReadingEntryList", () => {
             bookTitle: "작별하지 않는다",
             content: "감상2",
             userKeywords: [],
-            aiSummary: "요약2",
-            aiEmotions: [],
-            aiTopics: [],
             createdAt: "2024-05-02T10:00:00.000Z",
           },
         ]}

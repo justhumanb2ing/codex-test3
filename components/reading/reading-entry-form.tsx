@@ -63,9 +63,6 @@ export const ReadingEntryForm = ({
           className="h-48 w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           placeholder="책을 읽고 느낀 점을 자유롭게 작성해주세요."
         />
-        <p className="text-xs text-muted-foreground">
-          작성한 내용은 AI 요약과 감정 분석에 사용됩니다.
-        </p>
       </div>
       <div className="space-y-2">
         <label

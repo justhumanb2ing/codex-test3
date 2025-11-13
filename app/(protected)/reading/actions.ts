@@ -9,7 +9,6 @@ import {
   type ReadingLogResult,
   deleteReadingEntry,
 } from "@/services/reading-log-service"
-import { generateReadingInsight } from "@/services/reading-insight-service"
 
 export interface CreateReadingEntryActionState {
   error?: string
@@ -42,7 +41,7 @@ const handleCreationError = (
 })
 
 /**
- * 사용자가 제출한 독서 기록을 AI 분석과 함께 저장하고 상세 페이지로 이동합니다.
+ * 사용자가 제출한 독서 기록을 저장하고 상세 페이지로 이동합니다.
  */
 export const createReadingEntryAction = async (
   _prevState: CreateReadingEntryActionState = initialState,
@@ -66,18 +65,13 @@ export const createReadingEntryAction = async (
     }
   }
 
-  const insight = await generateReadingInsight(content)
-
   const payload: CreateReadingEntryInput = {
     userId: user.id,
     bookTitle,
     content,
     userKeywords: keywords,
-    aiSummary: insight.summary,
-    aiEmotions: insight.emotions,
-    aiTopics: insight.topics,
   }
-
+  console.log(payload)
   const result = await createReadingEntry(payload)
 
   if (!result.success || !result.data) {

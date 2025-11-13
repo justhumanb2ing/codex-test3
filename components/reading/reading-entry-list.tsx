@@ -27,6 +27,13 @@ const formatDateTime = (value: string) =>
     minute: "2-digit",
   }).format(new Date(value))
 
+const buildPreview = (content: string) =>
+  content
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .join(" ")
+
 export const ReadingEntryList = ({ entries }: ReadingEntryListProps) => {
   const [entryList, setEntryList] = useState(entries)
   const [entryPendingDeletion, setEntryPendingDeletion] =
@@ -97,22 +104,22 @@ export const ReadingEntryList = ({ entries }: ReadingEntryListProps) => {
                   <h3 className="text-lg font-semibold text-foreground">
                     {entry.bookTitle}
                   </h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {entry.aiSummary}
+                  <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                    {buildPreview(entry.content)}
                   </p>
                 </div>
                 <div className="text-right text-xs text-muted-foreground">
                   {formatDateTime(entry.createdAt)}
                 </div>
               </div>
-              {entry.aiTopics.length > 0 ? (
+              {entry.userKeywords.length > 0 ? (
                 <ul className="mt-3 flex flex-wrap gap-2">
-                  {entry.aiTopics.slice(0, 3).map((topic) => (
+                  {entry.userKeywords.map((keyword) => (
                     <li
-                      key={topic.id}
-                      className="rounded-md bg-primary/10 px-2 py-1 text-[11px] font-medium uppercase tracking-wider text-primary"
+                      key={keyword}
+                      className="rounded-full border border-border/70 bg-muted/40 px-3 py-1 text-[11px] font-medium uppercase tracking-wider text-muted-foreground"
                     >
-                      {topic.value}
+                      #{keyword}
                     </li>
                   ))}
                 </ul>

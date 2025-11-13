@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
-import { ReadingEntrySummary } from "@/components/reading/reading-entry-summary";
 import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/services/auth-service";
 import { getReadingEntry } from "@/services/reading-log-service";
@@ -82,11 +81,6 @@ export default async function ReadingEntryDetailPage({ params }: PageProps) {
           </ul>
         ) : null}
       </header>
-      <ReadingEntrySummary
-        summary={entry.aiSummary}
-        emotions={entry.aiEmotions}
-        topics={entry.aiTopics}
-      />
       <section className="space-y-3">
         <h2 className="text-lg font-semibold text-foreground">전체 감상문</h2>
         <div className="rounded-lg border border-border/70 bg-card p-5 text-sm leading-relaxed text-muted-foreground">

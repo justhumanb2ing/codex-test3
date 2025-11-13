@@ -19,12 +19,6 @@ jest.mock("@/services/reading-log-service", () => ({
   getReadingEntry: jest.fn(),
 }))
 
-jest.mock("@/components/reading/reading-entry-summary", () => ({
-  ReadingEntrySummary: ({ summary }: { summary: string }) => (
-    <div data-testid="reading-summary">{summary}</div>
-  ),
-}))
-
 const mockedGetCurrentUser = getCurrentUser as jest.MockedFunction<
   typeof getCurrentUser
 >
@@ -47,9 +41,6 @@ describe("ReadingEntryDetailPage", () => {
         bookTitle: "데미안",
         content: "첫 문장\n둘째 문장",
         userKeywords: ["성장"],
-        aiSummary: "요약",
-        aiEmotions: [],
-        aiTopics: [],
         createdAt: "2024-01-01T00:00:00.000Z",
       },
     })
