@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { ReadingEntryForm } from "@/components/reading/reading-entry-form";
@@ -15,10 +15,14 @@ import {
 
 interface ReadingEntryModalProps {
   defaultOpen?: boolean;
+  trigger?: ReactNode;
+  redirectOnClose?: string | null;
 }
 
 export const ReadingEntryModal = ({
   defaultOpen = false,
+  trigger,
+  redirectOnClose = "/reading",
 }: ReadingEntryModalProps) => {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(defaultOpen);
@@ -29,7 +33,9 @@ export const ReadingEntryModal = ({
 
   const closeModal = () => {
     setIsOpen(false);
-    router.replace("/reading", { scroll: false });
+    if (redirectOnClose) {
+      router.replace(redirectOnClose, { scroll: false });
+    }
   };
 
   const handleOpenChange = (open: boolean) => {
@@ -43,7 +49,11 @@ export const ReadingEntryModal = ({
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button type="button">새 기록 작성</Button>
+        {trigger ? (
+          trigger
+        ) : (
+          <Button type="button">새 기록 작성</Button>
+        )}
       </DialogTrigger>
       <DialogContent className="w-full max-w-2xl rounded-3xl border border-border/60 bg-background/95 p-6 text-left shadow-2xl">
         <DialogHeader className="sm:text-center">

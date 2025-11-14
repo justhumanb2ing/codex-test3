@@ -1,53 +1,39 @@
-import Link from "next/link"
-
-import { ProfileMenu } from "@/components/auth/profile-menu"
-import { Button } from "@/components/ui/button"
-import { getCurrentUser } from "@/services/auth-service"
-import { buildProfileName } from "@/lib/profile-utils"
+import { getCurrentUser } from "@/services/auth-service";
+import { buildProfileName } from "@/lib/profile-utils";
+import { AppNavigation } from "./app-navigation";
 
 const buildProfile = (user: Awaited<ReturnType<typeof getCurrentUser>>) => {
-  if (!user) return null
-  const metadata = user.user_metadata ?? {}
+  if (!user) return null;
+  const metadata = user.user_metadata ?? {};
   const name = buildProfileName(
     metadata as Record<string, unknown>,
-    user.email ?? undefined,
-  )
+    user.email ?? undefined
+  );
   const avatarUrl =
     (metadata?.custom_avatar_url as string | undefined) ??
     (metadata?.avatar_url as string | undefined) ??
-    (metadata?.picture as string | undefined)
+    (metadata?.picture as string | undefined);
 
   return {
     email: user.email ?? "",
     userId: user.id,
     name,
     avatarUrl,
-  }
-}
+  };
+};
 
 export const AppHeader = async () => {
-  const user = await getCurrentUser()
-  const profile = buildProfile(user)
+  const user = await getCurrentUser();
+  const profile = buildProfile(user);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur">
-      <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-4">
-        <Link href="/" className="text-sm font-semibold tracking-tight">
-          Codex Auth
-        </Link>
-        {profile ? (
-          <ProfileMenu profile={profile} />
-        ) : (
-          <div className="flex items-center gap-3">
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/login">로그인</Link>
-            </Button>
-            <Button asChild size="sm">
-              <Link href="/signup">회원가입</Link>
-            </Button>
-          </div>
-        )}
+    <>
+      <aside className="fixed left-0 top-0 z-40 hidden h-screen w-20 flex-col bg-background/95 px-2 py-6 md:flex">
+        <AppNavigation profile={profile} variant="vertical" />
+      </aside>
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-sm md:hidden px-2">
+        <AppNavigation profile={profile} variant="horizontal" />
       </div>
-    </header>
-  )
-}
+    </>
+  );
+};
