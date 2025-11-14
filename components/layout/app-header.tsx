@@ -27,13 +27,15 @@ export const AppHeader = async () => {
   const profile = buildProfile(user);
 
   return (
-    <>
-      <aside className="fixed left-0 top-0 z-40 hidden h-screen w-20 flex-col bg-background/95 px-2 py-6 md:flex">
+    <div className="order-last w-full md:order-first md:w-20">
+      <aside className="hidden h-full flex-col bg-background/95 px-2 py-6 md:flex md:sticky md:top-0 md:h-screen">
         <AppNavigation profile={profile} variant="vertical" />
       </aside>
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-sm md:hidden px-2">
-        <AppNavigation profile={profile} variant="horizontal" />
+      <div className="md:hidden">
+        <div className="sticky bottom-0 bg-background/80 backdrop-blur-sm px-2">
+          <AppNavigation profile={profile} variant="horizontal" />
+        </div>
       </div>
-    </>
+    </div>
   );
 };
