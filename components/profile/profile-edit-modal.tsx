@@ -11,10 +11,13 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Input } from "../ui/input";
+import Image from "next/image";
 
 interface ProfileEditModalProps {
   defaultName: string;
@@ -90,17 +93,26 @@ export const ProfileEditModal = ({
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button type="button" variant="outline" onClick={handleOpen}>
-          프로필 수정
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleOpen}
+          className="shadow-none text-base"
+        >
+          프로필 편집
         </Button>
       </DialogTrigger>
       <DialogContent
         showCloseButton={false}
         className="w-full max-w-lg rounded-3xl border border-border/60 bg-background/95 p-6 text-left shadow-2xl"
       >
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-semibold text-foreground">
-            프로필 수정
+        <DialogHeader hidden aria-hidden>
+          <DialogTitle
+            className="text-2xl font-semibold text-foreground"
+            hidden
+            aria-hidden
+          >
+            프로필 편집
           </DialogTitle>
         </DialogHeader>
         <form ref={formRef} action={formAction} className="space-y-6">
@@ -109,33 +121,28 @@ export const ProfileEditModal = ({
             name="currentAvatar"
             value={defaultAvatarUrl ?? ""}
           />
-          <div className="flex items-center gap-5">
-            <div className="relative">
-              {avatarPreview ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={avatarPreview}
-                  alt="프로필 이미지 미리보기"
-                  className="size-20 rounded-full border border-border/60 object-cover"
-                />
-              ) : (
-                <div className="flex size-20 items-center justify-center rounded-full border border-dashed border-border/70 bg-muted/40 text-sm font-medium text-muted-foreground">
-                  IMG
-                </div>
-              )}
-            </div>
-            <div className="space-y-2">
-              <Button
+          <div className="flex gap-5 flex-row-reverse items-center">
+            <div className="flex items-center gap-5">
+              <button
                 type="button"
-                variant="ghost"
-                size="sm"
                 onClick={() => fileInputRef.current?.click()}
+                className="relative focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-full"
+                aria-label="프로필 이미지 변경"
               >
-                이미지 변경
-              </Button>
-              <p className="text-xs text-muted-foreground">
-                JPG, PNG, WEBP 형식 이미지를 업로드하세요.
-              </p>
+                {avatarPreview ? (
+                  <Image
+                    src={avatarPreview}
+                    alt="프로필 이미지 미리보기"
+                    className="size-16 rounded-full border border-border/60 object-cover"
+                    width={64}
+                    height={64}
+                  />
+                ) : (
+                  <div className="flex size-16 items-center justify-center rounded-full border border-dashed border-border/70 bg-muted/40 text-sm font-medium text-muted-foreground">
+                    IMG
+                  </div>
+                )}
+              </button>
               <input
                 ref={fileInputRef}
                 name="avatar"
@@ -145,36 +152,38 @@ export const ProfileEditModal = ({
                 onChange={handleFileChange}
               />
             </div>
-          </div>
-          <div className="space-y-2">
-            <label
-              htmlFor="fullName"
-              className="text-sm font-medium text-muted-foreground"
-            >
-              이름
-            </label>
-            <input
-              id="fullName"
-              name="fullName"
-              type="text"
-              defaultValue={defaultName}
-              className="w-full rounded-2xl border border-border/70 bg-transparent px-4 py-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-              placeholder="이름을 입력하세요"
-            />
+            <div className="flex-1 space-y-1 border-b">
+              <label htmlFor="fullName" className="text-sm font-medium">
+                이름
+              </label>
+              <Input
+                id="fullName"
+                name="fullName"
+                type="text"
+                defaultValue={defaultName}
+                autoComplete="off"
+                className="w-full rounded-2xl bg-transparent px-0 py-5 text-sm focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-none shadow-none border-none ring-0 outline-none"
+                placeholder="이름을 입력하세요"
+              />
+            </div>
           </div>
           {state?.error ? (
             <p className="rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
               {state.error}
             </p>
           ) : null}
-          <div className="flex justify-end gap-3">
-            <Button type="button" variant="ghost" onClick={closeModal}>
-              아니오
-            </Button>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? "수정 중..." : "수정"}
-            </Button>
-          </div>
+          <DialogFooter>
+            <div className="flex gap-3 w-full">
+              <Button
+                type="submit"
+                disabled={isPending}
+                className="w-full py-6 font-medium"
+                size={"lg"}
+              >
+                {isPending ? "변경 중..." : "완료"}
+              </Button>
+            </div>
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

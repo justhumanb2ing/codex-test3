@@ -1,9 +1,9 @@
-import Link from "next/link"
-import { notFound } from "next/navigation"
-import { Sparkles } from "lucide-react"
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { Sparkles } from "lucide-react";
 
-import { ProfileEditModal } from "@/components/profile/profile-edit-modal"
-import { Button } from "@/components/ui/button"
+import { ProfileEditModal } from "@/components/profile/profile-edit-modal";
+import { Button } from "@/components/ui/button";
 import {
   Empty,
   EmptyContent,
@@ -11,98 +11,101 @@ import {
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from "@/components/ui/empty"
-import { getCurrentUser } from "@/services/auth-service"
-import { listReadingEntries } from "@/services/reading-log-service"
-import { buildProfileName } from "@/lib/profile-utils"
-import { getProfileById } from "@/services/profile-service"
+} from "@/components/ui/empty";
+import { getCurrentUser } from "@/services/auth-service";
+import { listReadingEntries } from "@/services/reading-log-service";
+import { buildProfileName } from "@/lib/profile-utils";
+import { getProfileById } from "@/services/profile-service";
+import Image from "next/image";
 
 const buildAvatarUrl = (metadata: Record<string, unknown>) => {
-  const candidates = ["custom_avatar_url", "avatar_url", "picture"]
+  const candidates = ["custom_avatar_url", "avatar_url", "picture"];
   for (const field of candidates) {
-    const value = metadata?.[field]
+    const value = metadata?.[field];
     if (typeof value === "string" && value.trim().length > 0) {
-      return value
+      return value;
     }
   }
-  return undefined
-}
+  return undefined;
+};
 
 const buildInitials = (name: string) => {
-  const [first = "", second = ""] = name.split(" ")
-  const initials = `${first[0] ?? ""}${second[0] ?? ""}`.trim()
+  const [first = "", second = ""] = name.split(" ");
+  const initials = `${first[0] ?? ""}${second[0] ?? ""}`.trim();
   if (initials) {
-    return initials.toUpperCase()
+    return initials.toUpperCase();
   }
-  return name.slice(0, 2).toUpperCase() || "US"
-}
+  return name.slice(0, 2).toUpperCase() || "US";
+};
 
 interface ProfileSettingsPageProps {
   params: Promise<{
-    userId: string | undefined
-  }>
+    userId: string | undefined;
+  }>;
 }
 
 export default async function ProfileSettingsPage({
   params,
 }: ProfileSettingsPageProps) {
-  const { userId } = await params
+  const { userId } = await params;
 
   if (!userId) {
-    notFound()
+    notFound();
   }
 
   const [currentUser, targetProfile, readingsResult] = await Promise.all([
     getCurrentUser(),
     getProfileById(userId),
     listReadingEntries(userId),
-  ])
+  ]);
 
   const historyCount =
     readingsResult.success && readingsResult.data
       ? readingsResult.data.length
-      : 0
-  const hasEnoughHistory = historyCount > 5
+      : 0;
+  const hasEnoughHistory = historyCount > 5;
 
-  const canEdit = currentUser?.id === userId
+  const canEdit = currentUser?.id === userId;
   const metadata = canEdit
     ? ((currentUser?.user_metadata ?? {}) as Record<string, unknown>)
-    : undefined
+    : undefined;
   const profileName = canEdit
-    ? buildProfileName(metadata ?? {}, currentUser?.email ?? targetProfile?.fullName)
-    : targetProfile?.fullName ?? "이름 없는 사용자"
+    ? buildProfileName(
+        metadata ?? {},
+        currentUser?.email ?? targetProfile?.fullName
+      )
+    : targetProfile?.fullName ?? "이름 없는 사용자";
   const avatarUrl = canEdit
     ? buildAvatarUrl(metadata ?? {}) ?? targetProfile?.avatarUrl
-    : targetProfile?.avatarUrl
-  const initials = buildInitials(profileName)
+    : targetProfile?.avatarUrl;
+  const initials = buildInitials(profileName);
   const email =
-    (canEdit ? currentUser?.email ?? targetProfile?.email : targetProfile?.email) ??
-    "이메일 정보가 없습니다."
+    (canEdit
+      ? currentUser?.email ?? targetProfile?.email
+      : targetProfile?.email) ?? "이메일 정보가 없습니다.";
 
-  const secondarySections = ["업적 및 배지"]
+  const secondarySections = ["업적 및 배지"];
 
   return (
     <main className="space-y-10">
-      <section className="space-y-6 rounded-xl border border-border/60 bg-card/40 p-6 shadow-sm">
-        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-4">
+      <section className="space-y-6">
+        <div className="flex flex-col gap-6">
+          <div className="flex items-center flex-row-reverse justify-between w-full">
             {avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <Image
                 src={avatarUrl}
                 alt={`${profileName} 프로필 이미지`}
-                className="size-20 rounded-full border border-border/50 object-cover"
+                className="size-24 rounded-full border border-border object-cover"
+                width={84}
+                height={84}
               />
             ) : (
-              <div className="flex size-20 items-center justify-center rounded-full border border-dashed border-border/70 bg-muted/50 text-lg font-semibold text-muted-foreground">
+              <div className="flex size-20 items-center justify-center rounded-full border border-border/70 bg-muted/50 text-lg font-semibold text-muted-foreground">
                 {initials}
               </div>
             )}
-            <div>
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                내 프로필
-              </p>
-              <h1 className="text-2xl font-semibold text-foreground">
+            <div className="space-y-1">
+              <h1 className="text-2xl font-bold text-foreground">
                 {profileName}
               </h1>
               <p className="text-sm text-muted-foreground">{email}</p>
@@ -198,5 +201,5 @@ export default async function ProfileSettingsPage({
         ) : null}
       </section>
     </main>
-  )
+  );
 }
