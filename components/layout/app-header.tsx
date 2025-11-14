@@ -3,14 +3,15 @@ import Link from "next/link"
 import { ProfileMenu } from "@/components/auth/profile-menu"
 import { Button } from "@/components/ui/button"
 import { getCurrentUser } from "@/services/auth-service"
+import { buildProfileName } from "@/lib/profile-utils"
 
 const buildProfile = (user: Awaited<ReturnType<typeof getCurrentUser>>) => {
   if (!user) return null
   const metadata = user.user_metadata ?? {}
-  const name =
-    (metadata?.custom_full_name as string | undefined) ??
-    (metadata?.full_name as string | undefined) ??
-    (metadata?.name as string | undefined)
+  const name = buildProfileName(
+    metadata as Record<string, unknown>,
+    user.email ?? undefined,
+  )
   const avatarUrl =
     (metadata?.custom_avatar_url as string | undefined) ??
     (metadata?.avatar_url as string | undefined) ??
@@ -18,7 +19,8 @@ const buildProfile = (user: Awaited<ReturnType<typeof getCurrentUser>>) => {
 
   return {
     email: user.email ?? "",
-    name: name ?? undefined,
+    userId: user.id,
+    name,
     avatarUrl,
   }
 }

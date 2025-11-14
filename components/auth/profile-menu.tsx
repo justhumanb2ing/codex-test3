@@ -16,21 +16,25 @@ import { signOutAction } from "@/app/(auth)/actions";
 interface ProfileInfo {
   email?: string;
   name?: string;
+  userId?: string;
   avatarUrl?: string;
 }
 
 const getInitials = (profile: ProfileInfo) => {
-  if (profile.name) {
-    const [first = "", second = ""] = profile.name.split(" ");
-    return (first[0] ?? "") + (second[0] ?? "");
+  const source = profile.name ?? profile.email ?? "U";
+  const [first = "", second = ""] = source.split(" ");
+  const initials = `${first[0] ?? ""}${second[0] ?? ""}`.trim();
+  if (initials) {
+    return initials.toUpperCase();
   }
-  if (profile.email) {
-    return profile.email.slice(0, 2).toUpperCase();
-  }
-  return "U";
+  return source.slice(0, 2).toUpperCase() || "U";
 };
 
 export const ProfileMenu = ({ profile }: { profile: ProfileInfo }) => {
+  const profilePath = profile.userId
+    ? `/profile/${encodeURIComponent(profile.userId)}`
+    : "/profile";
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -57,7 +61,7 @@ export const ProfileMenu = ({ profile }: { profile: ProfileInfo }) => {
           <span className="text-xs text-muted-foreground">{profile.email}</span>
         </DropdownMenuLabel>
         <DropdownMenuItem asChild>
-          <Link href="/profile" className="w-full cursor-pointer text-sm">
+          <Link href={profilePath} className="w-full cursor-pointer text-sm">
             프로필 설정
           </Link>
         </DropdownMenuItem>

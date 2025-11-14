@@ -1,5 +1,6 @@
 import "server-only";
 
+import { cache } from "react";
 import type { User } from "@supabase/supabase-js";
 
 import { createSupabaseServerClient } from "@/config/supabase";
@@ -83,7 +84,7 @@ export const signOutUser = async (): Promise<AuthResult> => {
 /**
  * SSR 환경에서 현재 인증된 사용자를 반환합니다.
  */
-export const getCurrentUser = async (): Promise<User | null> => {
+export const getCurrentUser = cache(async (): Promise<User | null> => {
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase.auth.getUser();
 
@@ -92,7 +93,7 @@ export const getCurrentUser = async (): Promise<User | null> => {
   }
 
   return data.user;
-};
+});
 
 /**
  * 카카오 OAuth 로그인을 시작합니다.

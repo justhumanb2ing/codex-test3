@@ -48,7 +48,10 @@ describe("updateProfileAction", () => {
   })
 
   it("updates profile without avatar change", async () => {
-    mockedGetCurrentUser.mockResolvedValue({ id: "user-1" } as never)
+    mockedGetCurrentUser.mockResolvedValue({
+      id: "user-1",
+      email: "user@example.com",
+    } as never)
     mockedUpdateUserProfile.mockResolvedValue({ success: true })
 
     const formData = new FormData()
@@ -59,15 +62,20 @@ describe("updateProfileAction", () => {
 
     expect(state).toEqual({ success: true })
     expect(mockedUpdateUserProfile).toHaveBeenCalledWith({
+      userId: "user-1",
       fullName: "홍길동",
       avatarUrl: "https://example.com/avatar.png",
+      email: "user@example.com",
     })
     expect(mockedUploadProfileImage).not.toHaveBeenCalled()
     expect(mockedRevalidatePath).toHaveBeenCalled()
   })
 
   it("uploads avatar when file exists", async () => {
-    mockedGetCurrentUser.mockResolvedValue({ id: "user-1" } as never)
+    mockedGetCurrentUser.mockResolvedValue({
+      id: "user-1",
+      email: "user@example.com",
+    } as never)
     mockedUpdateUserProfile.mockResolvedValue({ success: true })
     mockedUploadProfileImage.mockResolvedValue("https://cdn/avatar.png")
 
@@ -81,17 +89,23 @@ describe("updateProfileAction", () => {
     expect(state).toEqual({ success: true })
     expect(mockedUploadProfileImage).toHaveBeenCalled()
     expect(mockedUpdateUserProfile).toHaveBeenCalledWith({
+      userId: "user-1",
       fullName: "홍길동",
       avatarUrl: "https://cdn/avatar.png",
+      email: "user@example.com",
     })
   })
 
   it("returns error when upload fails", async () => {
-    mockedGetCurrentUser.mockResolvedValue({ id: "user-1" } as never)
+    mockedGetCurrentUser.mockResolvedValue({
+      id: "user-1",
+      email: "user@example.com",
+    } as never)
     mockedUploadProfileImage.mockRejectedValue(new Error("업로드 실패"))
 
     const file = new File(["hello"], "avatar.png", { type: "image/png" })
     const formData = new FormData()
+    formData.set("fullName", "홍길동")
     formData.set("avatar", file)
 
     const state = await updateProfileAction(undefined, formData)
@@ -101,7 +115,10 @@ describe("updateProfileAction", () => {
   })
 
   it("returns error when update fails", async () => {
-    mockedGetCurrentUser.mockResolvedValue({ id: "user-1" } as never)
+    mockedGetCurrentUser.mockResolvedValue({
+      id: "user-1",
+      email: "user@example.com",
+    } as never)
     mockedUpdateUserProfile.mockResolvedValue({
       success: false,
       error: "DB 오류",
@@ -113,5 +130,26 @@ describe("updateProfileAction", () => {
     const state = await updateProfileAction(undefined, formData)
 
     expect(state).toEqual({ error: "DB 오류" })
+  })
+
+  it("allows empty name updates when not provided", async () => {
+    mockedGetCurrentUser.mockResolvedValue({
+      id: "user-1",
+      email: "user@example.com",
+    } as never)
+    mockedUpdateUserProfile.mockResolvedValue({ success: true })
+
+    const formData = new FormData()
+    formData.set("currentAvatar", "")
+
+    const state = await updateProfileAction(undefined, formData)
+
+    expect(state).toEqual({ success: true })
+    expect(mockedUpdateUserProfile).toHaveBeenCalledWith({
+      userId: "user-1",
+      fullName: undefined,
+      avatarUrl: undefined,
+      email: "user@example.com",
+    })
   })
 })

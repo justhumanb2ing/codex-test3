@@ -1,6 +1,7 @@
 # AGENTS.md
 
 ## Overview
+You are an expert in Next.js 16 (App Router).
 This project follows a modular, test-driven, and maintainable architecture.
 The primary goals are clarity, scalability, and reliability.
 

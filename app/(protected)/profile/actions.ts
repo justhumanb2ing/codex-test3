@@ -50,8 +50,10 @@ export const updateProfileAction = async (
   }
 
   const updateResult = await updateUserProfile({
+    userId: user.id,
     fullName: fullName || undefined,
     avatarUrl,
+    email: user.email ?? undefined,
   })
 
   if (!updateResult.success) {
@@ -61,7 +63,7 @@ export const updateProfileAction = async (
     }
   }
 
-  revalidatePath("/profile")
+  revalidatePath("/profile/[userId]")
   revalidatePath("/", "layout")
 
   return { success: true }

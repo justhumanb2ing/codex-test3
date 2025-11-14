@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { redirect } from "next/navigation"
+import { notFound } from "next/navigation"
 import { Sparkles } from "lucide-react"
 
 import { ProfileEditModal } from "@/components/profile/profile-edit-modal"
@@ -14,20 +14,8 @@ import {
 } from "@/components/ui/empty"
 import { getCurrentUser } from "@/services/auth-service"
 import { listReadingEntries } from "@/services/reading-log-service"
-
-const buildDisplayName = (
-  metadata: Record<string, unknown>,
-  fallback?: string,
-) => {
-  const nameFields = ["custom_full_name", "full_name", "name", "nickname"]
-  for (const field of nameFields) {
-    const value = metadata?.[field]
-    if (typeof value === "string" && value.trim().length > 0) {
-      return value.trim()
-    }
-  }
-  return fallback ?? "이름 없는 사용자"
-}
+import { buildProfileName } from "@/lib/profile-utils"
+import { getProfileById } from "@/services/profile-service"
 
 const buildAvatarUrl = (metadata: Record<string, unknown>) => {
   const candidates = ["custom_avatar_url", "avatar_url", "picture"]
@@ -49,25 +37,47 @@ const buildInitials = (name: string) => {
   return name.slice(0, 2).toUpperCase() || "US"
 }
 
-export default async function ProfileSettingsPage() {
-  const user = await getCurrentUser()
+interface ProfileSettingsPageProps {
+  params: Promise<{
+    userId: string | undefined
+  }>
+}
 
-  if (!user) {
-    redirect("/login")
-    return null
+export default async function ProfileSettingsPage({
+  params,
+}: ProfileSettingsPageProps) {
+  const { userId } = await params
+
+  if (!userId) {
+    notFound()
   }
 
-  const readingsResult = await listReadingEntries(user.id)
+  const [currentUser, targetProfile, readingsResult] = await Promise.all([
+    getCurrentUser(),
+    getProfileById(userId),
+    listReadingEntries(userId),
+  ])
+
   const historyCount =
     readingsResult.success && readingsResult.data
       ? readingsResult.data.length
       : 0
   const hasEnoughHistory = historyCount > 5
 
-  const metadata = (user.user_metadata ?? {}) as Record<string, unknown>
-  const displayName = buildDisplayName(metadata, user.email ?? undefined)
-  const avatarUrl = buildAvatarUrl(metadata)
-  const initials = buildInitials(displayName)
+  const canEdit = currentUser?.id === userId
+  const metadata = canEdit
+    ? ((currentUser?.user_metadata ?? {}) as Record<string, unknown>)
+    : undefined
+  const profileName = canEdit
+    ? buildProfileName(metadata ?? {}, currentUser?.email ?? targetProfile?.fullName)
+    : targetProfile?.fullName ?? "이름 없는 사용자"
+  const avatarUrl = canEdit
+    ? buildAvatarUrl(metadata ?? {}) ?? targetProfile?.avatarUrl
+    : targetProfile?.avatarUrl
+  const initials = buildInitials(profileName)
+  const email =
+    (canEdit ? currentUser?.email ?? targetProfile?.email : targetProfile?.email) ??
+    "이메일 정보가 없습니다."
 
   const secondarySections = ["업적 및 배지"]
 
@@ -80,7 +90,7 @@ export default async function ProfileSettingsPage() {
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={avatarUrl}
-                alt={`${displayName} 프로필 이미지`}
+                alt={`${profileName} 프로필 이미지`}
                 className="size-20 rounded-full border border-border/50 object-cover"
               />
             ) : (
@@ -93,17 +103,17 @@ export default async function ProfileSettingsPage() {
                 내 프로필
               </p>
               <h1 className="text-2xl font-semibold text-foreground">
-                {displayName}
+                {profileName}
               </h1>
-              <p className="text-sm text-muted-foreground">
-                {user.email ?? "이메일 정보가 없습니다."}
-              </p>
+              <p className="text-sm text-muted-foreground">{email}</p>
             </div>
           </div>
-          <ProfileEditModal
-            defaultName={displayName}
-            defaultAvatarUrl={avatarUrl}
-          />
+          {canEdit ? (
+            <ProfileEditModal
+              defaultName={profileName}
+              defaultAvatarUrl={avatarUrl}
+            />
+          ) : null}
         </div>
       </section>
       <section className="rounded-xl border border-dashed border-border/50 bg-card/20 p-6">
@@ -164,11 +174,6 @@ export default async function ProfileSettingsPage() {
               사용자 분석
             </h2>
           </div>
-          {hasEnoughHistory ? (
-            <Button variant="secondary" className="w-full md:w-auto">
-              사용자 분석
-            </Button>
-          ) : null}
         </div>
         {!hasEnoughHistory ? (
           <Empty
@@ -190,15 +195,7 @@ export default async function ProfileSettingsPage() {
               </Button>
             </EmptyContent>
           </Empty>
-        ) : (
-          <div className="mt-6 space-y-4 rounded-2xl border border-border/60 bg-card/40 p-6">
-            <p className="text-sm text-muted-foreground">
-              사용자의 독서 패턴과 감상 키워드를 바탕으로 맞춤 인사이트를
-              준비했습니다.
-            </p>
-            <Button className="w-full md:w-64">사용자 분석 열기</Button>
-          </div>
-        )}
+        ) : null}
       </section>
     </main>
   )

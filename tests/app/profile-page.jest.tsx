@@ -1,16 +1,21 @@
 import { render, screen } from "@testing-library/react"
 
-import ProfileSettingsPage from "@/app/(protected)/profile/page"
+import ProfileSettingsPage from "@/app/(protected)/profile/[userId]/page"
 import { getCurrentUser } from "@/services/auth-service"
+import { getProfileById } from "@/services/profile-service"
 import { listReadingEntries } from "@/services/reading-log-service"
-import { redirect } from "next/navigation"
+import { notFound } from "next/navigation"
 
 jest.mock("next/navigation", () => ({
-  redirect: jest.fn(),
+  notFound: jest.fn(),
 }))
 
 jest.mock("@/services/auth-service", () => ({
   getCurrentUser: jest.fn(),
+}))
+
+jest.mock("@/services/profile-service", () => ({
+  getProfileById: jest.fn(),
 }))
 
 jest.mock("@/services/reading-log-service", () => ({
@@ -24,15 +29,27 @@ jest.mock("@/components/profile/profile-edit-modal", () => ({
 const mockedGetCurrentUser = getCurrentUser as jest.MockedFunction<
   typeof getCurrentUser
 >
+const mockedGetProfileById = getProfileById as jest.MockedFunction<
+  typeof getProfileById
+>
 const mockedListReadingEntries = listReadingEntries as jest.MockedFunction<
   typeof listReadingEntries
 >
-const mockedRedirect = redirect as jest.MockedFunction<typeof redirect>
+const mockedNotFound = notFound as jest.MockedFunction<typeof notFound>
+
+const buildParams = (userId?: string) =>
+  Promise.resolve({ userId }) as Promise<{ userId: string | undefined }>
 
 describe("ProfileSettingsPage", () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    mockedRedirect.mockImplementation(() => undefined as never)
+    mockedNotFound.mockImplementation(() => undefined as never)
+    mockedGetProfileById.mockResolvedValue({
+      id: "user-1",
+      fullName: "홍길동",
+      email: "reader@example.com",
+      avatarUrl: "https://example.com/avatar.png",
+    })
   })
 
   it("renders empty analysis state when history is insufficient", async () => {
@@ -57,7 +74,9 @@ describe("ProfileSettingsPage", () => {
       ],
     })
 
-    const ui = await ProfileSettingsPage()
+    const ui = await ProfileSettingsPage({
+      params: buildParams("user-1"),
+    })
     render(ui)
 
     expect(screen.getByText("홍길동")).toBeInTheDocument()
@@ -86,7 +105,9 @@ describe("ProfileSettingsPage", () => {
       data: [],
     })
 
-    const ui = await ProfileSettingsPage()
+    const ui = await ProfileSettingsPage({
+      params: buildParams("user-1"),
+    })
     render(ui)
 
     expect(
@@ -95,7 +116,7 @@ describe("ProfileSettingsPage", () => {
     expect(screen.getByTestId("history-empty")).toBeInTheDocument()
   })
 
-  it("shows enabled analysis button when history is sufficient", async () => {
+  it("hides analysis prompt when history is sufficient", async () => {
     mockedGetCurrentUser.mockResolvedValue({
       id: "user-1",
       email: "reader@example.com",
@@ -115,25 +136,46 @@ describe("ProfileSettingsPage", () => {
       })),
     })
 
-    const ui = await ProfileSettingsPage()
+    const ui = await ProfileSettingsPage({
+      params: buildParams("user-1"),
+    })
     render(ui)
 
     expect(
       screen.queryByText("히스토리를 5개 적으면 사용자 분석을 할 수 있어요"),
     ).not.toBeInTheDocument()
-    const button = screen.getByRole("button", { name: "사용자 분석 열기" })
-    expect(button).toBeEnabled()
+    expect(
+      screen.queryByRole("button", { name: "사용자 분석 열기" }),
+    ).not.toBeInTheDocument()
   })
 
-  it("redirects to login when user is missing", async () => {
+  it("renders profile when viewer is not authenticated", async () => {
     mockedGetCurrentUser.mockResolvedValue(null)
     mockedListReadingEntries.mockResolvedValue({
       success: true,
       data: [],
     })
 
-    await ProfileSettingsPage()
+    const ui = await ProfileSettingsPage({
+      params: buildParams("user-1"),
+    })
+    render(ui)
 
-    expect(mockedRedirect).toHaveBeenCalledWith("/login")
+    expect(screen.getByText("홍길동")).toBeInTheDocument()
+    expect(screen.getByText("reader@example.com")).toBeInTheDocument()
+    expect(screen.queryByTestId("profile-edit-modal")).not.toBeInTheDocument()
+  })
+
+  it("calls notFound when userId is missing", async () => {
+    mockedListReadingEntries.mockResolvedValue({
+      success: true,
+      data: [],
+    })
+
+    await ProfileSettingsPage({
+      params: buildParams(undefined),
+    })
+
+    expect(mockedNotFound).toHaveBeenCalled()
   })
 })
