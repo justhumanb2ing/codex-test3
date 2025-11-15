@@ -1,6 +1,7 @@
-import Link from "next/link"
+import Link from "next/link";
 
-import { BookSearchBar } from "@/components/reading/book-search-bar"
+import { NotificationTester } from "@/components/notifications/notification-tester";
+import { BookSearchBar } from "@/components/reading/book-search-bar";
 
 export default function HomePage() {
   return (
@@ -30,6 +31,7 @@ export default function HomePage() {
           <BookSearchBar />
         </div>
       </div>
+      <NotificationTester />
     </section>
-  )
+  );
 }

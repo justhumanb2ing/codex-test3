@@ -12,6 +12,7 @@ Key principles:
 - Prefer simple, explicit state management and consistent naming conventions across the codebase.
 - All functions considered as core must include JSDoc-style documentation comments.
 - Follow the Server-first principle and aim for minimal JavaScript bundles.
+- Must respond with Korean
 
 ## Structure Design Phase
 - Create the following project folder structure:
