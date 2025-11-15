@@ -10,6 +10,8 @@ export async function POST(request: Request) {
       typeof body.body === "string" ? body.body.trim() : undefined;
     const actionUrl =
       typeof body.actionUrl === "string" ? body.actionUrl.trim() : undefined;
+    const userId =
+      typeof body.userId === "string" ? body.userId.trim() || null : null;
 
     if (!title) {
       return NextResponse.json(
@@ -23,6 +25,7 @@ export async function POST(request: Request) {
       title,
       body: content,
       action_url: actionUrl,
+      user_id: userId,
     });
 
     if (error) {

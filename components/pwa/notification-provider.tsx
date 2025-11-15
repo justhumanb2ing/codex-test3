@@ -64,9 +64,29 @@ export const NotificationProvider = () => {
   const [permission, setPermission] = useState<NotificationPermission>(
     typeof window !== "undefined" ? Notification.permission : "default"
   );
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     requestPermission().then(setPermission).catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    const supabase = getSupabaseBrowserClient();
+
+    supabase.auth
+      .getSession()
+      .then(({ data }) => setUserId(data.session?.user.id ?? null))
+      .catch(console.error);
+
+    const {
+      data: authListener,
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserId(session?.user.id ?? null);
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
   }, []);
 
   useEffect(() => {
@@ -75,26 +95,40 @@ export const NotificationProvider = () => {
     }
 
     const supabase = getSupabaseBrowserClient();
-    const channel = supabase
-      .channel("notifications-feed")
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "notifications",
-        },
-        (payload) => {
-          const record = payload.new as NotificationRow;
-          showNativeNotification(record);
-        }
-      )
-      .subscribe();
+    const channels = [];
+
+    const subscribe = (channelName: string, filter: string) =>
+      supabase
+        .channel(channelName)
+        .on(
+          "postgres_changes",
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "notifications",
+            filter,
+          },
+          (payload) => {
+            const record = payload.new as NotificationRow;
+            showNativeNotification(record);
+          }
+        )
+        .subscribe();
+
+    channels.push(
+      subscribe("notifications-global", "user_id=is.null")
+    );
+
+    if (userId) {
+      channels.push(
+        subscribe(`notifications-user-${userId}`, `user_id=eq.${userId}`)
+      );
+    }
 
     return () => {
-      supabase.removeChannel(channel);
+      channels.forEach((channel) => supabase.removeChannel(channel));
     };
-  }, [permission]);
+  }, [permission, userId]);
 
   return null;
 };

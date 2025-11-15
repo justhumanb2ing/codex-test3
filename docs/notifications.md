@@ -18,8 +18,13 @@ create table public.notifications (
   title text not null,
   body text,
   action_url text,
-  created_at timestamptz default now() not null
+  created_at timestamptz default now() not null,
+  read_at timestamptz,
+  is_read boolean default false
 );
+
+create index notifications_user_read_idx
+  on public.notifications (user_id, is_read, read_at);
 ```
 
 - **user_id**: 대상 사용자. MVP에서는 선택적으로 null 허용 가능하며, 클라이언트에서 필터링.
@@ -78,4 +83,4 @@ API → Supabase DB → Realtime Channel → NotificationProvider → Service Wo
 
 - Supabase 에지 함수/cron으로 배치 알림 발송.
 - Topic/Tag 기반 구독, 우선순위 필드 추가.
-- 알림 읽음/아카이브 상태를 위한 `read_at` 컬럼 추가.
+- 알림 읽음/아카이브 상태(예: `is_read`, `archived_at`) 확장.

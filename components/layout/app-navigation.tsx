@@ -2,13 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  HouseIcon,
-  Icon,
-  MagnifyingGlassIcon,
-  PlusIcon,
-  UserIcon,
-} from "@phosphor-icons/react";
+import { BellSimpleIcon } from "@phosphor-icons/react/dist/csr/BellSimple";
+import { HouseIcon } from "@phosphor-icons/react/dist/csr/House";
+import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/csr/MagnifyingGlass";
+import { PlusIcon } from "@phosphor-icons/react/dist/csr/Plus";
+import { UserIcon } from "@phosphor-icons/react/dist/csr/User";
+import type { Icon as IconType } from "@phosphor-icons/react";
 
 import { Button } from "@/components/ui/button";
 import { ReadingEntryModal } from "@/components/reading/reading-entry-modal";
@@ -26,7 +25,7 @@ interface AppNavigationProps {
 interface NavItem {
   href?: string;
   label: string;
-  icon: Icon;
+  icon: IconType;
   isActive: (pathname: string) => boolean;
   fillOnActive?: boolean;
   useModal?: boolean;
@@ -39,6 +38,9 @@ export const AppNavigation = ({
   const pathname = usePathname();
   const hasProfile = Boolean(profile?.userId);
   const profileHref = hasProfile ? `/profile/${profile?.userId}` : "/login";
+  const notificationsHref = hasProfile
+    ? `/notifications/${profile?.userId}`
+    : "/login";
 
   const items: NavItem[] = [
     {
@@ -61,6 +63,12 @@ export const AppNavigation = ({
       isActive: (path) => path.startsWith("/reading"),
       fillOnActive: false,
       useModal: true,
+    },
+    {
+      href: notificationsHref,
+      label: "알림",
+      icon: BellSimpleIcon,
+      isActive: (path) => path.startsWith("/notifications"),
     },
     {
       href: profileHref,
@@ -116,7 +124,11 @@ export const AppNavigation = ({
                       isVertical ? "h-12 w-12" : "h-12 w-12 flex-1"
                     )}
                   >
-                    <Icon size={isVertical ? 24 : 24} weight={iconWeight} className="size-6" />
+                    <Icon
+                      size={isVertical ? 24 : 24}
+                      weight={iconWeight}
+                      className="size-6"
+                    />
                   </Button>
                 }
               />
@@ -137,7 +149,11 @@ export const AppNavigation = ({
               )}
             >
               <Link href={item.href!} aria-label={item.label}>
-                <Icon size={isVertical ? 24 : 24} weight={iconWeight} className="size-6" />
+                <Icon
+                  size={isVertical ? 24 : 24}
+                  weight={iconWeight}
+                  className="size-6"
+                />
               </Link>
             </Button>
           );
