@@ -13,6 +13,8 @@ Key principles:
 - All functions considered as core must include JSDoc-style documentation comments.
 - Follow the Server-first principle and aim for minimal JavaScript bundles.
 - Must respond with Korean
+- After implementing a feature, write documentation in Markdown format explaining how the feature works.
+- Additionally, when a feature is modified or removed, update or delete the corresponding documentation accordingly.
 
 ## Structure Design Phase
 - Create the following project folder structure:
