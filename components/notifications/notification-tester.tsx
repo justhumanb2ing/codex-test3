@@ -5,6 +5,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useSession, useUser } from "@clerk/nextjs";
 
 type TargetType = "all" | "user";
 
@@ -17,6 +18,7 @@ export const NotificationTester = () => {
   const [targetUserId, setTargetUserId] = useState("");
   const [status, setStatus] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user } = useUser();
 
   useEffect(() => {
     setMounted(true);
@@ -43,7 +45,8 @@ export const NotificationTester = () => {
           title,
           body,
           actionUrl,
-          userId: target === "user" ? targetUserId.trim() || undefined : undefined,
+          userId:
+            target === "user" ? targetUserId.trim() || undefined : user?.id,
         }),
       });
 
@@ -70,8 +73,8 @@ export const NotificationTester = () => {
     <section className="rounded-3xl border border-border/70 bg-card/50 p-6">
       <h2 className="text-xl font-semibold text-foreground">알림 테스트</h2>
       <p className="mt-1 text-sm text-muted-foreground">
-        아래 양식을 제출하면 Supabase → Realtime → PWA 알림 흐름을 바로 확인할 수
-        있습니다.
+        아래 양식을 제출하면 Supabase → Realtime → PWA 알림 흐름을 바로 확인할
+        수 있습니다.
       </p>
       <form onSubmit={handleSubmit} className="mt-4 space-y-4">
         <div className="space-y-1">

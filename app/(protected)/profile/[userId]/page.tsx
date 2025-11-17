@@ -82,7 +82,7 @@ export default async function ProfileSettingsPage({
 
   return (
     <main className="space-y-10">
-      <section className="space-y-6">
+      <section className="space-y-6 px-6">
         <div className="flex flex-col gap-6">
           <div className="flex items-center flex-row-reverse justify-between w-full">
             {avatarUrl ? (
@@ -115,13 +115,13 @@ export default async function ProfileSettingsPage({
         </div>
       </section>
       <Tabs defaultValue="records" className="rounded-xl bg-card/20">
-        <TabsList className="flex flex-wrap gap-2 bg-transparent p-0">
+        <TabsList className="flex flex-wrap gap-2 bg-transparent p-0 w-full">
           <TabsTrigger value="records">독서 기록</TabsTrigger>
           <TabsTrigger value="timeline">독서 히스토리 시각화</TabsTrigger>
           <TabsTrigger value="achievements">업적 및 배지</TabsTrigger>
           <TabsTrigger value="insights">사용자 분석</TabsTrigger>
         </TabsList>
-        <TabsContent value="records" className="mt-6">
+        <TabsContent value="records" className="mt-6 px-6">
           {entries.length === 0 ? (
             <Empty className="rounded-2xl border border-dashed border-border/60 bg-muted/20">
               <EmptyHeader>

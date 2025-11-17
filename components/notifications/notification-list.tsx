@@ -84,17 +84,17 @@ const SwipeableNotificationItem = ({
   };
 
   return (
-    <div className="relative overflow-hidden rounded-2xl">
+    <div className="relative overflow-hidden">
       <div
         className={cn(
-          "absolute inset-y-0 right-0 flex w-20 items-center justify-center bg-destructive/80 text-destructive-foreground transition-opacity",
+          "absolute inset-y-0 right-0 flex w-20 items-center justify-center bg-destructive/80 text-destructive-foreground transition-opacity rounded-r-xl",
           showDeleteAction ? "opacity-100" : "pointer-events-none opacity-0"
         )}
       >
         <button
           type="button"
           aria-label="알림 삭제"
-          className="flex size-10 items-center justify-center rounded-full text-destructive-foreground"
+          className="flex size-10 items-center justify-center text-destructive-foreground"
           onClick={handleDelete}
         >
           <Trash2 className="size-5" color="white" />
@@ -108,10 +108,7 @@ const SwipeableNotificationItem = ({
       >
         <Item
           size="sm"
-          className={cn(
-            "relative gap-3 rounded-2xl border-0 pr-6",
-            isUnread ? "bg-card/40" : "bg-muted/30"
-          )}
+          className={cn("relative gap-3 border-0 p-0 bg-card/40")}
         >
           <ItemContent className="gap-1">
             <ItemHeader>
@@ -173,6 +170,7 @@ export const NotificationList = ({
 
   const unreadCount = unreadItems.length;
   const readCount = readItems.length;
+
   if (items.length === 0) {
     return (
       <div className="rounded-3xl border border-dashed border-border/60 bg-muted/30 p-6 text-center text-sm text-muted-foreground">
@@ -196,12 +194,12 @@ export const NotificationList = ({
       onValueChange={(value) => setActiveTab(value as "unread" | "read")}
       className="space-y-4"
     >
-      <TabsList className="w-fit gap-2 bg-muted/40">
+      <TabsList className="w-fit gap-2 bg-muted/40 mx-auto">
         {tabConfigs.map((tab) => (
           <TabsTrigger
             key={tab.value}
             value={tab.value}
-            className="flex items-center gap-2 px-4 py-1.5 text-sm"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm"
           >
             <span>{tab.label}</span>
             <Badge
@@ -223,10 +221,10 @@ export const NotificationList = ({
         <TabsContent
           key={tab.value}
           value={tab.value}
-          className="mt-0 space-y-3"
+          className="mt-0 space-y-3 px-6"
         >
           {(tab.value === "unread" ? unreadItems : readItems).length === 0 ? (
-            <div className="rounded-3xl border border-dashed border-border/60 bg-muted/30 p-6 text-center text-sm text-muted-foreground">
+            <div className="rounded-xl border border-dashed border-border/60 bg-muted/30 text-center text-sm text-muted-foreground p-6">
               {tab.value === "unread"
                 ? "읽지 않은 알림이 없습니다."
                 : "읽은 알림이 없습니다."}
