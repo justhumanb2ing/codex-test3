@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 
 import ProfileSettingsPage from "@/app/(protected)/profile/[userId]/page"
 import { getCurrentUser } from "@/services/auth-service"
@@ -65,8 +66,10 @@ describe("ProfileSettingsPage", () => {
     const ui = await ProfileSettingsPage({ params: buildParams("user-1") })
     render(ui)
 
-    expect(screen.getByText("홍 길동")).toBeInTheDocument()
+    expect(screen.getByText("홍길동")).toBeInTheDocument()
     expect(screen.getByText("reader@example.com")).toBeInTheDocument()
+    const user = userEvent.setup()
+    await user.click(screen.getByRole("tab", { name: "사용자 분석" }))
     expect(
       screen.getByText("히스토리를 5개 적으면 사용자 분석을 할 수 있어요"),
     ).toBeInTheDocument()
@@ -83,7 +86,9 @@ describe("ProfileSettingsPage", () => {
     const ui = await ProfileSettingsPage({ params: buildParams("user-1") })
     render(ui)
 
-    expect(screen.getByText("아직 기록이 없어요")).toBeInTheDocument()
+    const user = userEvent.setup()
+    await user.click(screen.getByRole("tab", { name: "독서 히스토리 시각화" }))
+    expect(await screen.findByText("아직 기록이 없어요")).toBeInTheDocument()
     expect(screen.getByTestId("history-empty")).toBeInTheDocument()
   })
 

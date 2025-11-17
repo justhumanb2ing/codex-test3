@@ -13,6 +13,8 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ReadingEntryList } from "@/components/reading/reading-entry-list";
 import { getCurrentUser } from "@/services/auth-service";
 import { listReadingEntries } from "@/services/reading-log-service";
 import { buildProfileName } from "@/lib/profile-utils";
@@ -61,10 +63,11 @@ export default async function ProfileSettingsPage({
     notFound();
   }
 
-  const historyCount =
+  const entries =
     readingsResult.success && readingsResult.data
-      ? readingsResult.data.length
-      : 0;
+      ? readingsResult.data
+      : [];
+  const historyCount = entries.length;
   const hasEnoughHistory = historyCount > 5;
 
   const metadata = (currentUser.user_metadata ?? {}) as Record<string, unknown>;
@@ -78,8 +81,6 @@ export default async function ProfileSettingsPage({
   const avatarUrl = buildAvatarUrl(metadata);
   const initials = buildInitials(profileName);
   const email = currentUser.email ?? "이메일 정보가 없습니다.";
-
-  const secondarySections = ["업적 및 배지"];
 
   return (
     <main className="space-y-10">
@@ -115,87 +116,127 @@ export default async function ProfileSettingsPage({
           </div>
         </div>
       </section>
-      <section className="rounded-xl border border-dashed border-border/50 bg-card/20 p-6">
-        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">
-              Timeline
-            </p>
-            <h2 className="text-xl font-semibold text-foreground">
-              독서 히스토리 시각화
-            </h2>
+      <Tabs
+        defaultValue="records"
+        className="rounded-xl bg-card/20 p-6"
+      >
+        <TabsList className="flex flex-wrap gap-2 bg-transparent p-0">
+          <TabsTrigger value="records">독서 기록</TabsTrigger>
+          <TabsTrigger value="timeline">독서 히스토리 시각화</TabsTrigger>
+          <TabsTrigger value="achievements">업적 및 배지</TabsTrigger>
+          <TabsTrigger value="insights">사용자 분석</TabsTrigger>
+        </TabsList>
+        <TabsContent value="records" className="mt-6">
+          {entries.length === 0 ? (
+            <Empty className="rounded-2xl border border-dashed border-border/60 bg-muted/20">
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <Sparkles className="size-5 text-primary" />
+                </EmptyMedia>
+                <EmptyTitle>작성된 독서 기록이 없습니다.</EmptyTitle>
+                <EmptyDescription>
+                  첫 독서 기록을 남겨보면 히스토리를 시작할 수 있어요.
+                </EmptyDescription>
+              </EmptyHeader>
+              <EmptyContent>
+                <Button asChild className="w-full md:w-64">
+                  <Link href="/reading/new">독서 기록 작성하기</Link>
+                </Button>
+              </EmptyContent>
+            </Empty>
+          ) : (
+            <ReadingEntryList entries={entries} />
+          )}
+        </TabsContent>
+        <TabsContent value="timeline" className="mt-6">
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                Timeline
+              </p>
+              <h2 className="text-xl font-semibold text-foreground">
+                독서 히스토리 시각화
+              </h2>
+            </div>
           </div>
-        </div>
-        {historyCount === 0 ? (
-          <Empty
-            data-testid="history-empty"
-            className="mt-6 rounded-2xl border border-dashed border-border/60 bg-muted/20"
-          >
-            <EmptyHeader>
-              <EmptyMedia variant="icon">
-                <Sparkles className="size-5 text-primary" />
-              </EmptyMedia>
-              <EmptyTitle>아직 기록이 없어요</EmptyTitle>
-              <EmptyDescription>
-                첫 독서 히스토리를 작성하면 시각화 리포트를 만들어드릴게요.
-              </EmptyDescription>
-            </EmptyHeader>
-            <EmptyContent>
-              <Button asChild className="w-full md:w-64">
-                <Link href="/reading/new">독서 히스토리 작성하기</Link>
-              </Button>
-            </EmptyContent>
-          </Empty>
-        ) : (
-          <div className="mt-6 space-y-2 text-sm text-muted-foreground">
-            <p>
-              최근 {historyCount}개의 독서 기록을 기반으로 트렌드를 분석할 수
-              있어요. 시각화 기능은 곧 제공될 예정입니다.
-            </p>
+          {historyCount === 0 ? (
+            <Empty
+              data-testid="history-empty"
+              className="mt-6 rounded-2xl border border-dashed border-border/60 bg-muted/20"
+            >
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <Sparkles className="size-5 text-primary" />
+                </EmptyMedia>
+                <EmptyTitle>아직 기록이 없어요</EmptyTitle>
+                <EmptyDescription>
+                  첫 독서 히스토리를 작성하면 시각화 리포트를 만들어드릴게요.
+                </EmptyDescription>
+              </EmptyHeader>
+              <EmptyContent>
+                <Button asChild className="w-full md:w-64">
+                  <Link href="/reading/new">독서 히스토리 작성하기</Link>
+                </Button>
+              </EmptyContent>
+            </Empty>
+          ) : (
+            <div className="mt-6 space-y-2 text-sm text-muted-foreground">
+              <p>
+                최근 {historyCount}개의 독서 기록을 기반으로 트렌드를 분석할 수
+                있어요. 시각화 기능은 곧 제공될 예정입니다.
+              </p>
+            </div>
+          )}
+        </TabsContent>
+        <TabsContent value="achievements" className="mt-6">
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                Achievements
+              </p>
+              <h2 className="text-xl font-semibold text-foreground">
+                업적 및 배지
+              </h2>
+            </div>
           </div>
-        )}
-      </section>
-      {secondarySections.map((title) => (
-        <section
-          key={title}
-          className="rounded-xl border border-dashed border-border/50 bg-card/20 p-6"
-        >
-          <h2 className="text-xl font-semibold text-foreground">{title}</h2>
-        </section>
-      ))}
-      <section className="rounded-xl border border-dashed border-border/50 bg-card/20 p-6">
-        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">
-              Insights
-            </p>
-            <h2 className="text-xl font-semibold text-foreground">
-              사용자 분석
-            </h2>
+          <div className="mt-6 rounded-2xl border border-dashed border-border/60 bg-muted/20 p-6 text-sm text-muted-foreground">
+            새로운 업적을 준비 중입니다. 조금만 기다려주세요!
           </div>
-        </div>
-        {!hasEnoughHistory ? (
-          <Empty
-            data-testid="analysis-empty"
-            className="mt-6 rounded-2xl border border-dashed border-border/60 bg-muted/20"
-          >
-            <EmptyHeader>
-              <EmptyMedia variant="icon">
-                <Sparkles className="size-5 text-primary" />
-              </EmptyMedia>
-              <EmptyTitle>조금만 더 기록해볼까요?</EmptyTitle>
-              <EmptyDescription>
-                히스토리를 5개 적으면 사용자 분석을 할 수 있어요
-              </EmptyDescription>
-            </EmptyHeader>
-            <EmptyContent>
-              <Button disabled className="w-full md:w-64">
+        </TabsContent>
+        <TabsContent value="insights" className="mt-6">
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                Insights
+              </p>
+              <h2 className="text-xl font-semibold text-foreground">
                 사용자 분석
-              </Button>
-            </EmptyContent>
-          </Empty>
-        ) : null}
-      </section>
+              </h2>
+            </div>
+          </div>
+          {!hasEnoughHistory ? (
+            <Empty
+              data-testid="analysis-empty"
+              className="mt-6 rounded-2xl border border-dashed border-border/60 bg-muted/20"
+            >
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <Sparkles className="size-5 text-primary" />
+                </EmptyMedia>
+                <EmptyTitle>조금만 더 기록해볼까요?</EmptyTitle>
+                <EmptyDescription>
+                  히스토리를 5개 적으면 사용자 분석을 할 수 있어요
+                </EmptyDescription>
+              </EmptyHeader>
+              <EmptyContent>
+                <Button disabled className="w-full md:w-64">
+                  사용자 분석
+                </Button>
+              </EmptyContent>
+            </Empty>
+          ) : null}
+        </TabsContent>
+      </Tabs>
     </main>
   );
 }
