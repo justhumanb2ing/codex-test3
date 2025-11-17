@@ -23,7 +23,7 @@ export interface ReadingLogResult<T> {
   error?: string
 }
 
-const TABLE_NAME = "reading_entries"
+const TABLE_NAME = "record"
 const DEFAULT_ERROR_MESSAGE = "독서 기록을 처리하는 중 문제가 발생했습니다."
 
 interface ReadingEntryRow {
