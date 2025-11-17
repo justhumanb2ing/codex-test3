@@ -3,8 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 
 import "./globals.css";
 import { AppHeader } from "@/components/layout/app-header";
-import { PwaProvider } from "@/components/pwa/pwa-provider";
+import { MobileTopBar } from "@/components/layout/mobile-top-bar";
 import { NotificationProvider } from "@/components/pwa/notification-provider";
+import { PwaProvider } from "@/components/pwa/pwa-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,10 +38,15 @@ export default function RootLayout({
         <NotificationProvider />
         <div className="flex min-h-screen flex-col md:flex-row">
           <AppHeader />
-          <div className="flex-1 overflow-y-auto pb-20 md:pb-0">
-            <main className="mx-auto w-full max-w-5xl px-4 py-8">
-              {children}
-            </main>
+          <div className="flex-1">
+            <div className="flex h-full flex-col">
+              <MobileTopBar />
+              <div className="flex-1 pb-20 md:pb-0 md:overflow-y-auto">
+                <main className="mx-auto w-full max-w-5xl px-4 py-8">
+                  {children}
+                </main>
+              </div>
+            </div>
           </div>
         </div>
       </body>

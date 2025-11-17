@@ -12,6 +12,8 @@ import type { Icon as IconType } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { ReadingEntryModal } from "@/components/reading/reading-entry-modal";
 import { cn } from "@/lib/utils";
+import { NavigationDropdown } from "@/components/layout/navigation-dropdown";
+import { AppLogo } from "./app-logo";
 
 interface AppNavigationProps {
   profile?: {
@@ -84,11 +86,14 @@ export const AppNavigation = ({
   return (
     <nav
       className={cn(
-        "flex items-center justify-center py-2",
-        isVertical ? "h-full flex-col" : "w-full"
+        "flex py-1",
+        isVertical
+          ? "h-full flex-col items-center justify-between"
+          : "w-full flex-col items-stretch justify-between gap-3"
       )}
       aria-label="주요 내비게이션"
     >
+      {isVertical ? <AppLogo /> : null}
       <div
         className={cn(
           "flex",
@@ -159,6 +164,11 @@ export const AppNavigation = ({
           );
         })}
       </div>
+      {isVertical ? (
+        <div className="flex items-center">
+          <NavigationDropdown align="start" />
+        </div>
+      ) : null}
     </nav>
   );
 };
