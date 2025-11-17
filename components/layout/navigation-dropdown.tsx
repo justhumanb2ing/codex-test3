@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { FadersHorizontalIcon } from "@phosphor-icons/react/dist/csr/FadersHorizontal";
+import { NotificationPermissionToggle } from "../notifications/notification-permission-toggle";
 
 interface NavigationDropdownProps {
   align?: "start" | "center" | "end";
@@ -38,9 +39,15 @@ export const NavigationDropdown = ({
           <FadersHorizontalIcon size={24} weight="bold" className="size-6" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align={align} className="w-48">
+      <DropdownMenuContent
+        align={align}
+        className="w-48 rounded-xl p-4 space-y-2"
+      >
+        <DropdownMenuItem className="cursor-pointer text-base font-bold p-3">
+          <NotificationPermissionToggle />
+        </DropdownMenuItem>
         <SignOutButton signOutOptions={{ redirectUrl: "/" }}>
-          <DropdownMenuItem className="cursor-pointer text-destructive">
+          <DropdownMenuItem className="cursor-pointer text-destructive text-lg font-bold p-3">
             로그아웃
           </DropdownMenuItem>
         </SignOutButton>

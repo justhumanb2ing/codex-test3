@@ -34,13 +34,10 @@ export const NotificationPermissionToggle = () => {
   };
 
   return (
-    <div className="rounded-3xl border border-border/60 bg-card/40 p-4">
+    <div className="w-full">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <p className="text-sm font-medium">알림 권한</p>
-          <p className="text-xs text-muted-foreground">
-            브라우저에서 알림을 허용해야 실시간 알림을 받을 수 있습니다.
-          </p>
+          <p className="text-lg font-bold">알림 설정</p>
         </div>
         <Switch
           checked={enabled}

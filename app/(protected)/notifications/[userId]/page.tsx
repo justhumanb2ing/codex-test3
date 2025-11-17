@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 
 import { getCurrentUser } from "@/services/auth-service";
 import { listNotifications } from "@/services/notification-service";
-import { NotificationPermissionToggle } from "@/components/notifications/notification-permission-toggle";
 import { NotificationList } from "@/components/notifications/notification-list";
 
 interface NotificationsPageProps {

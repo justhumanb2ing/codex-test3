@@ -17,7 +17,7 @@ export default async function ProtectedLayout({
   }
 
   return (
-    <div className="py-6 border min-h-screen rounded-4xl bg-background shadow-md rounded-b-none">
+    <div className="py-6 border border-ring/30 min-h-screen rounded-4xl bg-background shadow-lg rounded-b-none">
       {children}
     </div>
   );
