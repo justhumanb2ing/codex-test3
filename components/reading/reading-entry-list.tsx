@@ -1,21 +1,21 @@
-"use client"
+"use client";
 
-import { useEffect, useState, useTransition } from "react"
-import Link from "next/link"
-import { EllipsisVertical } from "lucide-react"
+import { useEffect, useState, useTransition } from "react";
+import Link from "next/link";
+import { EllipsisVertical } from "lucide-react";
 
-import { deleteReadingEntryAction } from "@/app/(protected)/reading/actions"
-import { Button } from "@/components/ui/button"
+import { deleteReadingEntryAction } from "@/app/(protected)/reading/actions";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import type { ReadingEntry } from "@/services/reading-log-service"
+} from "@/components/ui/dropdown-menu";
+import type { ReadingEntry } from "@/services/reading-log-service";
 
 interface ReadingEntryListProps {
-  entries: ReadingEntry[]
+  entries: ReadingEntry[];
 }
 
 const formatDateTime = (value: string) =>
@@ -25,64 +25,64 @@ const formatDateTime = (value: string) =>
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-  }).format(new Date(value))
+  }).format(new Date(value));
 
 const buildPreview = (content: string) =>
   content
     .split("\n")
     .map((line) => line.trim())
     .filter(Boolean)
-    .join(" ")
+    .join(" ");
 
 export const ReadingEntryList = ({ entries }: ReadingEntryListProps) => {
-  const [entryList, setEntryList] = useState(entries)
+  const [entryList, setEntryList] = useState(entries);
   const [entryPendingDeletion, setEntryPendingDeletion] =
-    useState<ReadingEntry | null>(null)
-  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null)
-  const [isDeleting, startTransition] = useTransition()
+    useState<ReadingEntry | null>(null);
+  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+  const [isDeleting, startTransition] = useTransition();
 
   useEffect(() => {
-    setEntryList(entries)
-  }, [entries])
+    setEntryList(entries);
+  }, [entries]);
 
   const handleRequestDelete = (entry: ReadingEntry) => {
-    setFeedbackMessage(null)
-    setEntryPendingDeletion(entry)
-  }
+    setFeedbackMessage(null);
+    setEntryPendingDeletion(entry);
+  };
 
   const closeConfirmationModal = () => {
-    setEntryPendingDeletion(null)
-  }
+    setEntryPendingDeletion(null);
+  };
 
   const handleConfirmDelete = () => {
     if (!entryPendingDeletion) {
-      return
+      return;
     }
 
-    const entryId = entryPendingDeletion.id
-    closeConfirmationModal()
+    const entryId = entryPendingDeletion.id;
+    closeConfirmationModal();
 
     startTransition(async () => {
-      const result = await deleteReadingEntryAction(entryId)
+      const result = await deleteReadingEntryAction(entryId);
 
       if (!result.success) {
         setFeedbackMessage(
-          result.error ?? "기록을 삭제하는 중 문제가 발생했습니다.",
-        )
-        return
+          result.error ?? "기록을 삭제하는 중 문제가 발생했습니다."
+        );
+        return;
       }
 
-      setFeedbackMessage(null)
-      setEntryList((prev) => prev.filter((entry) => entry.id !== entryId))
-    })
-  }
+      setFeedbackMessage(null);
+      setEntryList((prev) => prev.filter((entry) => entry.id !== entryId));
+    });
+  };
 
   if (entryList.length === 0) {
     return (
       <p className="rounded-lg border border-dashed border-border/80 bg-muted/30 px-4 py-6 text-center text-sm text-muted-foreground">
         아직 작성한 독서 기록이 없습니다. 첫 감상을 남겨보세요!
       </p>
-    )
+    );
   }
 
   return (
@@ -97,7 +97,7 @@ export const ReadingEntryList = ({ entries }: ReadingEntryListProps) => {
           <li key={entry.id} className="relative">
             <Link
               href={`/reading/${entry.id}`}
-              className="block rounded-lg border border-border/70 bg-card p-4 pr-14 transition hover:border-primary/60 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+              className="block rounded-lg bg-card p-4 pr-14 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 hover:bg-background-service"
             >
               <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <div>
@@ -163,8 +163,8 @@ export const ReadingEntryList = ({ entries }: ReadingEntryListProps) => {
               기록을 삭제할까요?
             </h4>
             <p className="mt-2 text-sm text-muted-foreground">
-              "{entryPendingDeletion.bookTitle}"에 대한 감상을 삭제하면 다시
-              복구할 수 없습니다. 계속하시겠어요?
+              &quot;{entryPendingDeletion.bookTitle}&quot;에 대한 감상을
+              삭제하면 다시 복구할 수 없습니다. 계속하시겠어요?
             </p>
             <div className="mt-6 flex justify-end gap-3">
               <Button
@@ -186,5 +186,5 @@ export const ReadingEntryList = ({ entries }: ReadingEntryListProps) => {
         </div>
       ) : null}
     </>
-  )
-}
+  );
+};
