@@ -1,21 +1,26 @@
-import { getCurrentUser } from "@/services/auth-service";
 import { buildProfileName } from "@/lib/profile-utils";
+import { getCurrentUser } from "@/services/auth-service";
+import { getProfileById } from "@/services/profile-service";
 import { AppNavigation } from "./app-navigation";
 
-const buildProfile = (user: Awaited<ReturnType<typeof getCurrentUser>>) => {
+const buildProfile = async (user: Awaited<ReturnType<typeof getCurrentUser>>) => {
   if (!user) return null;
-  const metadata = user.user_metadata ?? {};
+  const profileRecord = await getProfileById(user.id).catch(() => null);
+  const metadata = {
+    ...(user.user_metadata ?? {}),
+    custom_full_name: profileRecord?.fullName,
+    custom_avatar_url: profileRecord?.avatarUrl,
+  } as Record<string, unknown>;
   const name = buildProfileName(
-    metadata as Record<string, unknown>,
-    user.email ?? undefined
+    metadata,
+    user.email ?? profileRecord?.email ?? undefined
   );
   const avatarUrl =
     (metadata?.custom_avatar_url as string | undefined) ??
-    (metadata?.avatar_url as string | undefined) ??
-    (metadata?.picture as string | undefined);
+    (metadata?.avatar_url as string | undefined);
 
   return {
-    email: user.email ?? "",
+    email: user.email ?? profileRecord?.email ?? "",
     userId: user.id,
     name,
     avatarUrl,
@@ -24,7 +29,7 @@ const buildProfile = (user: Awaited<ReturnType<typeof getCurrentUser>>) => {
 
 export const AppHeader = async () => {
   const user = await getCurrentUser();
-  const profile = buildProfile(user);
+  const profile = await buildProfile(user);
 
   return (
     <div className="order-last w-full md:order-first md:w-20 sticky bottom-0">

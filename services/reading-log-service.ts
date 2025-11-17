@@ -1,6 +1,5 @@
-import "server-only"
 
-import { createSupabaseServerClient } from "@/config/supabase"
+import { createServerSupabaseClient } from "@/config/supabase"
 
 export interface ReadingEntry {
   id: string
@@ -56,7 +55,7 @@ const buildErrorResult = <T>(error?: string): ReadingLogResult<T> => ({
 export const createReadingEntry = async (
   input: CreateReadingEntryInput,
 ): Promise<ReadingLogResult<ReadingEntry>> => {
-  const supabase = await createSupabaseServerClient()
+  const supabase = await createServerSupabaseClient()
   const { data, error } = await supabase
     .from(TABLE_NAME)
     .insert({
@@ -84,7 +83,7 @@ export const createReadingEntry = async (
 export const listReadingEntries = async (
   userId: string,
 ): Promise<ReadingLogResult<ReadingEntry[]>> => {
-  const supabase = await createSupabaseServerClient()
+  const supabase = await createServerSupabaseClient()
   const { data, error } = await supabase
     .from(TABLE_NAME)
     .select()
@@ -108,7 +107,7 @@ export const getReadingEntry = async (
   userId: string,
   entryId: string,
 ): Promise<ReadingLogResult<ReadingEntry | null>> => {
-  const supabase = await createSupabaseServerClient()
+  const supabase = await createServerSupabaseClient()
   const { data, error } = await supabase
     .from(TABLE_NAME)
     .select()
@@ -140,7 +139,7 @@ export const deleteReadingEntry = async (
   userId: string,
   entryId: string,
 ): Promise<ReadingLogResult<null>> => {
-  const supabase = await createSupabaseServerClient()
+  const supabase = await createServerSupabaseClient()
   const { error } = await supabase
     .from(TABLE_NAME)
     .delete()

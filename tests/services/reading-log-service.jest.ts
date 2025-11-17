@@ -4,10 +4,10 @@ import {
   getReadingEntry,
   listReadingEntries,
 } from "@/services/reading-log-service"
-import { createSupabaseServerClient } from "@/config/supabase"
+import { createServerSupabaseClient } from "@/config/supabase"
 
 jest.mock("@/config/supabase", () => ({
-  createSupabaseServerClient: jest.fn(),
+  createServerSupabaseClient: jest.fn(),
 }))
 
 type SupabaseInsertChain = {
@@ -27,8 +27,8 @@ type MockSupabaseClient = {
   from: jest.Mock
 }
 
-const mockedCreateClient = createSupabaseServerClient as jest.MockedFunction<
-  typeof createSupabaseServerClient
+const mockedCreateClient = createServerSupabaseClient as jest.MockedFunction<
+  typeof createServerSupabaseClient
 >
 
 const createInsertClient = (

@@ -1,6 +1,5 @@
-import "server-only"
 
-import { createSupabaseServerClient } from "@/config/supabase"
+import { createServerSupabaseClient } from "@/config/supabase"
 
 export interface UpdateProfileInput {
   userId: string
@@ -24,30 +23,15 @@ export interface UserProfile {
 export const updateUserProfile = async (
   input: UpdateProfileInput,
 ): Promise<ProfileUpdateResult> => {
-  const data: Record<string, string> = {}
-
-  if (typeof input.fullName === "string") {
-    data.full_name = input.fullName
-    data.custom_full_name = input.fullName
+  if (
+    typeof input.fullName !== "string" &&
+    typeof input.avatarUrl !== "string" &&
+    typeof input.email !== "string"
+  ) {
+    return { success: true }
   }
 
-  if (typeof input.avatarUrl === "string") {
-    data.avatar_url = input.avatarUrl
-    data.custom_avatar_url = input.avatarUrl
-  }
-
-  const supabase = await createSupabaseServerClient()
-
-  if (Object.keys(data).length > 0) {
-    const { error } = await supabase.auth.updateUser({ data })
-
-    if (error) {
-      return {
-        success: false,
-        error: error.message,
-      }
-    }
-  }
+  const supabase = await createServerSupabaseClient()
 
   const profilePayload: Record<string, string> = { id: input.userId }
 
@@ -63,16 +47,14 @@ export const updateUserProfile = async (
     profilePayload.email = input.email
   }
 
-  if (Object.keys(profilePayload).length > 1) {
-    const { error: profileError } = await supabase
-      .from("profiles")
-      .upsert(profilePayload, { onConflict: "id" })
+  const { error: profileError } = await supabase
+    .from("profiles")
+    .upsert(profilePayload, { onConflict: "id" })
 
-    if (profileError) {
-      return {
-        success: false,
-        error: profileError.message,
-      }
+  if (profileError) {
+    return {
+      success: false,
+      error: profileError.message,
     }
   }
 
@@ -82,7 +64,7 @@ export const updateUserProfile = async (
 export const getProfileById = async (
   userId: string,
 ): Promise<UserProfile | null> => {
-  const supabase = await createSupabaseServerClient()
+  const supabase = await createServerSupabaseClient()
   const { data, error } = await supabase
     .from("profiles")
     .select("id, full_name, avatar_url, email")

@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSession } from "@clerk/nextjs";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 
-import { getSupabaseBrowserClient } from "@/lib/supabase-browser";
+import { createBrowserSupabaseClient } from "@/lib/supabase-browser";
 
 interface NotificationRow {
   id: string;
@@ -65,40 +67,28 @@ export const NotificationProvider = () => {
     typeof window !== "undefined" ? Notification.permission : "default"
   );
   const [userId, setUserId] = useState<string | null>(null);
+  const { session } = useSession();
+  const client = createBrowserSupabaseClient(
+    () => session?.getToken() ?? Promise.resolve(null)
+  );
 
   useEffect(() => {
     requestPermission().then(setPermission).catch(console.error);
   }, []);
 
   useEffect(() => {
-    const supabase = getSupabaseBrowserClient();
-
-    supabase.auth
-      .getSession()
-      .then(({ data }) => setUserId(data.session?.user.id ?? null))
-      .catch(console.error);
-
-    const {
-      data: authListener,
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUserId(session?.user.id ?? null);
-    });
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
-  }, []);
+    setUserId(session?.user?.id ?? null);
+  }, [session]);
 
   useEffect(() => {
     if (permission === "denied") {
       return;
     }
 
-    const supabase = getSupabaseBrowserClient();
-    const channels = [];
+    const channels: RealtimeChannel[] = [];
 
     const subscribe = (channelName: string, filter: string) =>
-      supabase
+      client
         .channel(channelName)
         .on(
           "postgres_changes",
@@ -115,9 +105,7 @@ export const NotificationProvider = () => {
         )
         .subscribe();
 
-    channels.push(
-      subscribe("notifications-global", "user_id=is.null")
-    );
+    channels.push(subscribe("notifications-global", "user_id=is.null"));
 
     if (userId) {
       channels.push(
@@ -126,9 +114,9 @@ export const NotificationProvider = () => {
     }
 
     return () => {
-      channels.forEach((channel) => supabase.removeChannel(channel));
+      channels.forEach((channel) => client.removeChannel(channel));
     };
-  }, [permission, userId]);
+  }, [client, permission, userId]);
 
   return null;
 };

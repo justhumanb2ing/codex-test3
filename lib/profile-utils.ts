@@ -2,7 +2,7 @@ export const buildProfileName = (
   metadata: Record<string, unknown>,
   fallback?: string,
 ) => {
-  const fields = ["custom_full_name", "full_name", "name", "nickname"]
+  const fields = ["username", "custom_full_name", "full_name", "name", "nickname"]
 
   for (const field of fields) {
     const value = metadata?.[field]

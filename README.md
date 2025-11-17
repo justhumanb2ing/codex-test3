@@ -1,6 +1,6 @@
 ## Overview
 
-Supabase를 기반으로 로그인 · 로그아웃 · 회원가입 플로우를 구현한 Next.js(App Router) 예제입니다. 서버 액션과 SSR을 사용하여 최소한의 클라이언트 자바스크립트로 인증을 처리합니다. 추가로 독서 기록을 등록하면 AI 요약과 감정/주제 분석 결과를 함께 저장하고 확인할 수 있습니다.
+Supabase를 데이터 계층으로, Clerk를 인증 계층으로 사용하는 Next.js(App Router) 예제입니다. Clerk의 호스티드 SignIn/SignUp UI를 통해 최소한의 클라이언트 코드로 인증을 처리하고, Supabase는 서비스 롤 키를 사용해 독서 기록/프로필 데이터를 저장합니다. 추가로 독서 기록을 등록하면 AI 요약과 감정/주제 분석 결과를 함께 저장하고 확인할 수 있습니다.
 
 ## Getting Started
 
@@ -21,7 +21,11 @@ cp .env.example .env.local
 | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase 프로젝트 URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon API key |
+| `SUPABASE_SERVICE_ROLE_KEY` | 서버에서 Supabase RLS를 우회해 데이터를 다룰 때 사용할 Service Role 키 |
 | `NEXT_PUBLIC_SITE_URL` | OAuth 리다이렉트에 사용할 공개 사이트 URL |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk Publishable Key |
+| `CLERK_SECRET_KEY` | Clerk Secret Key |
+| `CLERK_SUPABASE_TEMPLATE_NAME` | Clerk JWT Template 이름(기본값 `supabase`) |
 | `R2_ENDPOINT` | Cloudflare R2 S3 호환 엔드포인트 URL |
 | `R2_ACCESS_KEY_ID` | R2 액세스 키 |
 | `R2_SECRET_ACCESS_KEY` | R2 시크릿 키 |
@@ -50,17 +54,20 @@ bun test
 | `components/ui/` | shadcn/ui 기반 버튼 등 UI 프리미티브 |
 | `config/` | Supabase와 같은 공용 설정 모듈 |
 | `lib/` | 검색 파라미터 등 공유 유틸리티 |
-| `services/` | Supabase 인증과 같은 데이터/도메인 로직 |
+| `services/` | Supabase 데이터 로직 및 Clerk 사용자 조회 |
 | `tests/` | 단위/통합 테스트 파일 (Bun test 실행 대상) |
 | `types/` | JSON Schema 등 공용 타입 정의 |
 
 ## Auth Pages
 
-- `/login` – 이메일/비밀번호 로그인과 Kakao OAuth 버튼, 서버 액션 기반 오류 처리
-- `/signup` – 비밀번호 확인 + 이메일 검증 안내, Kakao OAuth 온보딩 옵션
-- `/logout` – 로그아웃 서버 액션을 노출하는 확인 페이지
-- `/auth/callback` – Kakao OAuth 리디렉션 후 세션을 확정하고 원하는 경로로 이동
-- `/` – 현재 세션 정보를 SSR에서 렌더링하고 상태에 따라 CTA 제어
+- `/sign-in` – Clerk SignIn 위젯(`app/(auth)/sign-in/[[...sign-in]]`)을 감싼 커스텀 카드
+- `/sign-up` – Clerk SignUp 위젯(`app/(auth)/sign-up/[[...sign-up]]`)을 감싼 커스텀 카드
+- `/` – 현재 Clerk 세션을 기반으로 SSR에서 CTA를 제어
+
+## Username Policy
+
+- Clerk 대시보드에서 Username 필드를 필수로 설정하면 동일한 정책이 모든 회원가입 경로에 적용됩니다.
+- 사용자 이름은 Clerk가 관리하며, 필요한 경우 `profiles` 테이블에 저장된 사용자 정의 이름(풀네임/아바타)을 통해 UI를 커스터마이즈합니다.
 
 ## JSON Schemas
 

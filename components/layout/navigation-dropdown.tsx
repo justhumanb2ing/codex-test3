@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { SignOutButton } from "@clerk/nextjs";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -41,11 +41,11 @@ export const NavigationDropdown = ({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align={align} className="w-48">
-        <DropdownMenuItem asChild>
-          <Link href="/logout" className="text-destructive">
+        <SignOutButton signOutOptions={{ redirectUrl: "/" }}>
+          <DropdownMenuItem className="cursor-pointer text-destructive">
             로그아웃
-          </Link>
-        </DropdownMenuItem>
+          </DropdownMenuItem>
+        </SignOutButton>
       </DropdownMenuContent>
     </DropdownMenu>
   );

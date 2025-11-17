@@ -39,10 +39,10 @@ export const AppNavigation = ({
 }: AppNavigationProps) => {
   const pathname = usePathname();
   const hasProfile = Boolean(profile?.userId);
-  const profileHref = hasProfile ? `/profile/${profile?.userId}` : "/login";
+  const profileHref = hasProfile ? `/profile/${profile?.userId}` : "/sign-in";
   const notificationsHref = hasProfile
     ? `/notifications/${profile?.userId}`
-    : "/login";
+    : "/sign-in";
 
   const items: NavItem[] = [
     {
@@ -77,7 +77,7 @@ export const AppNavigation = ({
       label: "프로필",
       icon: UserIcon,
       isActive: (path) =>
-        hasProfile ? path.startsWith("/profile") : path.startsWith("/login"),
+        hasProfile ? path.startsWith("/profile") : path.startsWith("/sign-in"),
     },
   ];
 

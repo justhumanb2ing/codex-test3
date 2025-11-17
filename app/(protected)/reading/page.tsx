@@ -15,7 +15,7 @@ export default async function ReadingEntriesPage({
   const user = await getCurrentUser()
 
   if (!user) {
-    redirect("/login")
+    redirect("/sign-in")
   }
 
   const result = await listReadingEntries(user.id)

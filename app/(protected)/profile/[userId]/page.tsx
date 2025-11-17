@@ -67,7 +67,12 @@ export default async function ProfileSettingsPage({
 
   const canEdit = currentUser?.id === userId;
   const metadata = canEdit
-    ? ((currentUser?.user_metadata ?? {}) as Record<string, unknown>)
+    ? ({
+        ...(currentUser?.user_metadata ?? {}),
+        custom_full_name: targetProfile?.fullName,
+        custom_avatar_url: targetProfile?.avatarUrl,
+        email: currentUser?.email ?? targetProfile?.email,
+      } as Record<string, unknown>)
     : undefined;
   const profileName = canEdit
     ? buildProfileName(

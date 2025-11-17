@@ -25,7 +25,7 @@ export default async function ReadingEntryDetailPage({ params }: PageProps) {
   const user = await getCurrentUser();
 
   if (!user) {
-    redirect("/login");
+    redirect("/sign-in");
   }
 
   const result = await getReadingEntry(user.id, entryId);

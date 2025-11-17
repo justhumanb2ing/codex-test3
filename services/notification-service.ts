@@ -1,6 +1,5 @@
-import "server-only";
 
-import { createSupabaseServerClient } from "@/config/supabase";
+import { createServerSupabaseClient } from "@/config/supabase";
 
 export interface NotificationRecord {
   id: string;
@@ -22,7 +21,7 @@ export interface NotificationListResult {
 export const listNotifications = async (
   userId: string
 ): Promise<NotificationListResult> => {
-  const supabase = await createSupabaseServerClient();
+  const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase
     .from("notifications")
     .select()

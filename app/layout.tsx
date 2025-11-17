@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
+import { koKR } from "@clerk/localizations";
+import { shadcn } from "@clerk/themes";
 
 import "./globals.css";
 import { AppHeader } from "@/components/layout/app-header";
@@ -30,26 +33,47 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} bg-background text-foreground antialiased`}
-      >
-        <PwaProvider />
-        <NotificationProvider />
-        <div className="flex min-h-screen flex-col md:flex-row">
-          <AppHeader />
-          <div className="flex-1">
-            <div className="flex h-full flex-col">
-              <MobileTopBar />
-              <div className="flex-1 pb-20 md:pb-0 md:overflow-y-auto">
-                <main className="mx-auto w-full max-w-5xl px-4 py-8">
-                  {children}
-                </main>
+    <ClerkProvider
+      localization={koKR}
+      appearance={{
+        theme: shadcn,
+        layout: {
+          termsPageUrl: "https://clerk.com/terms",
+          unsafe_disableDevelopmentModeWarnings: true,
+          socialButtonsPlacement: "bottom",
+          socialButtonsVariant: "iconButton",
+          logoPlacement: "outside",
+        },
+        captcha: {
+          size: "flexible",
+          language: "ko-KR",
+        },
+        variables: {
+          colorBackground: "white",
+        },
+      }}
+    >
+      <html lang="en">
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} bg-background text-foreground antialiased`}
+        >
+          <PwaProvider />
+          <NotificationProvider />
+          <div className="flex min-h-screen flex-col md:flex-row">
+            <AppHeader />
+            <div className="flex-1">
+              <div className="flex h-full flex-col">
+                <MobileTopBar />
+                <div className="flex-1 pb-20 md:pb-0 md:overflow-y-auto">
+                  <main className="mx-auto w-full max-w-5xl px-4 py-8">
+                    {children}
+                  </main>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </body>
-    </html>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

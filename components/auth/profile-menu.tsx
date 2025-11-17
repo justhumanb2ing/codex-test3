@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { SignOutButton } from "@clerk/nextjs";
 
 import {
   DropdownMenu,
@@ -11,7 +12,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { signOutAction } from "@/app/(auth)/actions";
 
 interface ProfileInfo {
   email?: string;
@@ -66,16 +66,11 @@ export const ProfileMenu = ({ profile }: { profile: ProfileInfo }) => {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <form action={signOutAction}>
-          <DropdownMenuItem asChild>
-            <button
-              type="submit"
-              className="w-full text-left text-sm text-destructive cursor-pointer"
-            >
-              로그아웃
-            </button>
+        <SignOutButton signOutOptions={{ redirectUrl: "/" }}>
+          <DropdownMenuItem className="w-full cursor-pointer text-sm text-destructive">
+            로그아웃
           </DropdownMenuItem>
-        </form>
+        </SignOutButton>
       </DropdownMenuContent>
     </DropdownMenu>
   );

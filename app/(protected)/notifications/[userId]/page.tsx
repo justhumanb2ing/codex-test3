@@ -18,7 +18,7 @@ export default async function NotificationsPage({
   const user = await getCurrentUser()
 
   if (!user) {
-    redirect("/login")
+    redirect("/sign-in")
   }
 
   if (!userId || userId !== user.id) {

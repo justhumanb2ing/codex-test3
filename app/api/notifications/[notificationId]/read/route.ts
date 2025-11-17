@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { createSupabaseServerClient } from "@/config/supabase";
+import { createServerSupabaseClient } from "@/config/supabase";
 
 export async function POST(
   _request: Request,
@@ -20,7 +20,7 @@ export async function POST(
   }
 
   try {
-    const supabase = await createSupabaseServerClient();
+    const supabase = await createServerSupabaseClient();
     const { error } = await supabase
       .from("notifications")
       .update({
