@@ -29,7 +29,7 @@ export default async function NotificationsPage({
   const notifications = result.success && result.data ? result.data : []
 
   return (
-    <section className="space-y-8 py-8">
+    <section className="space-y-8">
       <div className="space-y-2">
         <p className="text-xs uppercase tracking-wide text-muted-foreground">
           Notifications

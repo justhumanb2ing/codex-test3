@@ -64,9 +64,7 @@ export default async function ProfileSettingsPage({
   }
 
   const entries =
-    readingsResult.success && readingsResult.data
-      ? readingsResult.data
-      : [];
+    readingsResult.success && readingsResult.data ? readingsResult.data : [];
   const historyCount = entries.length;
   const hasEnoughHistory = historyCount > 5;
 
@@ -116,10 +114,7 @@ export default async function ProfileSettingsPage({
           </div>
         </div>
       </section>
-      <Tabs
-        defaultValue="records"
-        className="rounded-xl bg-card/20 p-6"
-      >
+      <Tabs defaultValue="records" className="rounded-xl bg-card/20">
         <TabsList className="flex flex-wrap gap-2 bg-transparent p-0">
           <TabsTrigger value="records">독서 기록</TabsTrigger>
           <TabsTrigger value="timeline">독서 히스토리 시각화</TabsTrigger>

@@ -53,9 +53,9 @@ export default function RootLayout({
         },
       }}
     >
-      <html lang="en">
+      <html lang="ko">
         <body
-          className={`${geistSans.variable} ${geistMono.variable} bg-background text-foreground antialiased`}
+          className={`${geistSans.variable} ${geistMono.variable} bg-background-service text-foreground antialiased`}
         >
           <PwaProvider />
           <NotificationProvider />
@@ -64,8 +64,8 @@ export default function RootLayout({
             <div className="flex-1">
               <div className="flex h-full flex-col">
                 <MobileTopBar />
-                <div className="flex-1 pb-20 md:pb-0 md:overflow-y-auto">
-                  <main className="mx-auto w-full max-w-5xl px-4 py-8">
+                <div className="flex-1 md:pb-0 md:overflow-y-auto">
+                  <main className="mx-auto w-full max-w-3xl px-4 py-8 pb-0">
                     {children}
                   </main>
                 </div>
