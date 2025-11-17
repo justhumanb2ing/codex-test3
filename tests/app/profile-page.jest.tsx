@@ -2,7 +2,6 @@ import { render, screen } from "@testing-library/react"
 
 import ProfileSettingsPage from "@/app/(protected)/profile/[userId]/page"
 import { getCurrentUser } from "@/services/auth-service"
-import { getProfileById } from "@/services/profile-service"
 import { listReadingEntries } from "@/services/reading-log-service"
 import { notFound } from "next/navigation"
 
@@ -12,10 +11,6 @@ jest.mock("next/navigation", () => ({
 
 jest.mock("@/services/auth-service", () => ({
   getCurrentUser: jest.fn(),
-}))
-
-jest.mock("@/services/profile-service", () => ({
-  getProfileById: jest.fn(),
 }))
 
 jest.mock("@/services/reading-log-service", () => ({
@@ -29,9 +24,6 @@ jest.mock("@/components/profile/profile-edit-modal", () => ({
 const mockedGetCurrentUser = getCurrentUser as jest.MockedFunction<
   typeof getCurrentUser
 >
-const mockedGetProfileById = getProfileById as jest.MockedFunction<
-  typeof getProfileById
->
 const mockedListReadingEntries = listReadingEntries as jest.MockedFunction<
   typeof listReadingEntries
 >
@@ -44,22 +36,18 @@ describe("ProfileSettingsPage", () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockedNotFound.mockImplementation(() => undefined as never)
-    mockedGetProfileById.mockResolvedValue({
-      id: "user-1",
-      fullName: "홍길동",
-      email: "reader@example.com",
-      avatarUrl: "https://example.com/avatar.png",
-    })
   })
 
-  it("renders empty analysis state when history is insufficient", async () => {
-    mockedGetCurrentUser.mockResolvedValue({
-      id: "user-1",
-      email: "reader@example.com",
-      user_metadata: {
-        full_name: "홍길동",
-      },
-    } as never)
+  const viewer = {
+    id: "user-1",
+    email: "reader@example.com",
+    firstName: "길동",
+    lastName: "홍",
+    user_metadata: {},
+  } as never
+
+  it("renders profile and empty analysis state when history is insufficient", async () => {
+    mockedGetCurrentUser.mockResolvedValue(viewer)
     mockedListReadingEntries.mockResolvedValue({
       success: true,
       data: [
@@ -74,108 +62,64 @@ describe("ProfileSettingsPage", () => {
       ],
     })
 
-    const ui = await ProfileSettingsPage({
-      params: buildParams("user-1"),
-    })
+    const ui = await ProfileSettingsPage({ params: buildParams("user-1") })
     render(ui)
 
-    expect(screen.getByText("홍길동")).toBeInTheDocument()
+    expect(screen.getByText("홍 길동")).toBeInTheDocument()
     expect(screen.getByText("reader@example.com")).toBeInTheDocument()
-    expect(screen.getByText("독서 히스토리 시각화")).toBeInTheDocument()
-    expect(screen.getByText("업적 및 배지")).toBeInTheDocument()
     expect(
       screen.getByText("히스토리를 5개 적으면 사용자 분석을 할 수 있어요"),
     ).toBeInTheDocument()
-    const analysisButton = screen.getByTestId("analysis-empty").querySelector(
-      "button",
-    ) as HTMLButtonElement
-    expect(analysisButton).toBeDisabled()
+    expect(screen.getByTestId("profile-edit-modal")).toBeInTheDocument()
   })
 
-  it("renders history empty state when there are no entries", async () => {
-    mockedGetCurrentUser.mockResolvedValue({
-      id: "user-1",
-      email: "reader@example.com",
-      user_metadata: {
-        full_name: "홍길동",
-      },
-    } as never)
+  it("renders history empty state when entries are missing", async () => {
+    mockedGetCurrentUser.mockResolvedValue(viewer)
     mockedListReadingEntries.mockResolvedValue({
       success: true,
       data: [],
     })
 
-    const ui = await ProfileSettingsPage({
-      params: buildParams("user-1"),
-    })
+    const ui = await ProfileSettingsPage({ params: buildParams("user-1") })
     render(ui)
 
-    expect(
-      screen.getByText("아직 기록이 없어요"),
-    ).toBeInTheDocument()
+    expect(screen.getByText("아직 기록이 없어요")).toBeInTheDocument()
     expect(screen.getByTestId("history-empty")).toBeInTheDocument()
   })
 
-  it("hides analysis prompt when history is sufficient", async () => {
-    mockedGetCurrentUser.mockResolvedValue({
-      id: "user-1",
-      email: "reader@example.com",
-      user_metadata: {
-        full_name: "홍길동",
-      },
-    } as never)
+  it("hides analysis prompt when there are enough entries", async () => {
+    mockedGetCurrentUser.mockResolvedValue(viewer)
     mockedListReadingEntries.mockResolvedValue({
       success: true,
       data: Array.from({ length: 6 }).map((_, index) => ({
-        id: `entry-${index + 1}`,
+        id: `entry-${index}`,
         userId: "user-1",
-        bookTitle: `책${index + 1}`,
+        bookTitle: "책",
         content: "내용",
         userKeywords: [],
         createdAt: "2024-01-01T00:00:00.000Z",
       })),
     })
 
-    const ui = await ProfileSettingsPage({
-      params: buildParams("user-1"),
-    })
+    const ui = await ProfileSettingsPage({ params: buildParams("user-1") })
     render(ui)
 
     expect(
       screen.queryByText("히스토리를 5개 적으면 사용자 분석을 할 수 있어요"),
     ).not.toBeInTheDocument()
-    expect(
-      screen.queryByRole("button", { name: "사용자 분석 열기" }),
-    ).not.toBeInTheDocument()
   })
 
-  it("renders profile when viewer is not authenticated", async () => {
-    mockedGetCurrentUser.mockResolvedValue(null)
-    mockedListReadingEntries.mockResolvedValue({
-      success: true,
-      data: [],
-    })
+  it("calls notFound when userId is missing or mismatched", async () => {
+    mockedGetCurrentUser.mockResolvedValue(viewer)
+    mockedListReadingEntries.mockResolvedValue({ success: true, data: [] })
 
-    const ui = await ProfileSettingsPage({
-      params: buildParams("user-1"),
-    })
-    render(ui)
-
-    expect(screen.getByText("홍길동")).toBeInTheDocument()
-    expect(screen.getByText("reader@example.com")).toBeInTheDocument()
-    expect(screen.queryByTestId("profile-edit-modal")).not.toBeInTheDocument()
-  })
-
-  it("calls notFound when userId is missing", async () => {
-    mockedListReadingEntries.mockResolvedValue({
-      success: true,
-      data: [],
-    })
-
-    await ProfileSettingsPage({
-      params: buildParams(undefined),
-    })
-
+    await ProfileSettingsPage({ params: buildParams(undefined) })
     expect(mockedNotFound).toHaveBeenCalled()
+
+    const initialCalls = mockedNotFound.mock.calls.length
+    await ProfileSettingsPage({ params: buildParams("other-user") })
+    expect(mockedNotFound.mock.calls.length).toBeGreaterThanOrEqual(
+      initialCalls + 1,
+    )
   })
 })

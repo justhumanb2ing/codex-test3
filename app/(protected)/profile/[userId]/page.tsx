@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Sparkles } from "lucide-react";
+import Image from "next/image";
 
 import { ProfileEditModal } from "@/components/profile/profile-edit-modal";
 import { Button } from "@/components/ui/button";
@@ -15,8 +16,6 @@ import {
 import { getCurrentUser } from "@/services/auth-service";
 import { listReadingEntries } from "@/services/reading-log-service";
 import { buildProfileName } from "@/lib/profile-utils";
-import { getProfileById } from "@/services/profile-service";
-import Image from "next/image";
 
 const buildAvatarUrl = (metadata: Record<string, unknown>) => {
   const candidates = ["custom_avatar_url", "avatar_url", "picture"];
@@ -53,11 +52,14 @@ export default async function ProfileSettingsPage({
     notFound();
   }
 
-  const [currentUser, targetProfile, readingsResult] = await Promise.all([
+  const [currentUser, readingsResult] = await Promise.all([
     getCurrentUser(),
-    getProfileById(userId),
     listReadingEntries(userId),
   ]);
+
+  if (!currentUser || currentUser.id !== userId) {
+    notFound();
+  }
 
   const historyCount =
     readingsResult.success && readingsResult.data
@@ -65,29 +67,17 @@ export default async function ProfileSettingsPage({
       : 0;
   const hasEnoughHistory = historyCount > 5;
 
-  const canEdit = currentUser?.id === userId;
-  const metadata = canEdit
-    ? ({
-        ...(currentUser?.user_metadata ?? {}),
-        custom_full_name: targetProfile?.fullName,
-        custom_avatar_url: targetProfile?.avatarUrl,
-        email: currentUser?.email ?? targetProfile?.email,
-      } as Record<string, unknown>)
-    : undefined;
-  const profileName = canEdit
-    ? buildProfileName(
-        metadata ?? {},
-        currentUser?.email ?? targetProfile?.fullName
-      )
-    : targetProfile?.fullName ?? "이름 없는 사용자";
-  const avatarUrl = canEdit
-    ? buildAvatarUrl(metadata ?? {}) ?? targetProfile?.avatarUrl
-    : targetProfile?.avatarUrl;
+  const metadata = (currentUser.user_metadata ?? {}) as Record<string, unknown>;
+  const firstName =
+    currentUser.firstName ?? (metadata?.name as string | undefined) ?? "";
+  const lastName =
+    currentUser.lastName ?? (metadata?.nickname as string | undefined) ?? "";
+  const profileName =
+    [lastName, firstName].filter((part) => part?.length).join("") ||
+    buildProfileName(metadata, currentUser.email ?? undefined);
+  const avatarUrl = buildAvatarUrl(metadata);
   const initials = buildInitials(profileName);
-  const email =
-    (canEdit
-      ? currentUser?.email ?? targetProfile?.email
-      : targetProfile?.email) ?? "이메일 정보가 없습니다.";
+  const email = currentUser.email ?? "이메일 정보가 없습니다.";
 
   const secondarySections = ["업적 및 배지"];
 
@@ -116,12 +106,13 @@ export default async function ProfileSettingsPage({
               <p className="text-sm text-muted-foreground">{email}</p>
             </div>
           </div>
-          {canEdit ? (
+          <div>
             <ProfileEditModal
-              defaultName={profileName}
+              defaultFirstName={firstName}
+              defaultLastName={lastName}
               defaultAvatarUrl={avatarUrl}
             />
-          ) : null}
+          </div>
         </div>
       </section>
       <section className="rounded-xl border border-dashed border-border/50 bg-card/20 p-6">

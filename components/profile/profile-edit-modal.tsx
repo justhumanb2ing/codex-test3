@@ -1,12 +1,18 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import {
+  useActionState,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import Image from "next/image";
 
 import {
   updateProfileAction,
   type UpdateProfileActionState,
-} from "@/app/(protected)/profile/actions";
+} from "@/app/(protected)/profile/edit-profile-action";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -16,41 +22,43 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "../ui/input";
-import Image from "next/image";
+import { Input } from "@/components/ui/input";
+import { Label } from "../ui/label";
 
 interface ProfileEditModalProps {
-  defaultName: string;
+  defaultFirstName?: string;
+  defaultLastName?: string;
   defaultAvatarUrl?: string;
 }
 
-const buildInitialState = (success?: boolean): UpdateProfileActionState => ({
+const buildInitialState = (): UpdateProfileActionState => ({
   error: undefined,
-  success,
+  success: false,
 });
 
 export const ProfileEditModal = ({
-  defaultName,
+  defaultFirstName = "",
+  defaultLastName = "",
   defaultAvatarUrl,
 }: ProfileEditModalProps) => {
-  const router = useRouter();
-  const [isOpen, setIsOpen] = useState(false);
-  const [preview, setPreview] = useState<string | undefined>(defaultAvatarUrl);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const formRef = useRef<HTMLFormElement>(null);
-
   const [state, formAction, isPending] = useActionState(
     updateProfileAction,
     buildInitialState()
   );
+  const [isOpen, setIsOpen] = useState(false);
+  const [preview, setPreview] = useState<string | undefined>(
+    defaultAvatarUrl
+  );
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
-    if (state?.success) {
-      setIsOpen(false);
+    if (state.success) {
       formRef.current?.reset();
-      router.refresh();
+      setPreview(defaultAvatarUrl);
+      setIsOpen(false);
     }
-  }, [state?.success, router]);
+  }, [state.success, defaultAvatarUrl]);
 
   useEffect(() => {
     setPreview(defaultAvatarUrl);
@@ -58,7 +66,7 @@ export const ProfileEditModal = ({
 
   const closeModal = () => {
     setIsOpen(false);
-    setPreview((prev) => prev ?? defaultAvatarUrl);
+    setPreview(defaultAvatarUrl);
     formRef.current?.reset();
   };
 
@@ -68,10 +76,6 @@ export const ProfileEditModal = ({
       return;
     }
     closeModal();
-  };
-
-  const handleOpen = () => {
-    setIsOpen(true);
   };
 
   const handleFileChange = () => {
@@ -96,8 +100,7 @@ export const ProfileEditModal = ({
         <Button
           type="button"
           variant="outline"
-          onClick={handleOpen}
-          className="shadow-none text-base"
+          className="shadow-none text-base w-full"
         >
           프로필 편집
         </Button>
@@ -116,13 +119,8 @@ export const ProfileEditModal = ({
           </DialogTitle>
         </DialogHeader>
         <form ref={formRef} action={formAction} className="space-y-6">
-          <input
-            type="hidden"
-            name="currentAvatar"
-            value={defaultAvatarUrl ?? ""}
-          />
           <div className="flex gap-5 flex-row-reverse items-center">
-            <div className="flex items-center gap-5">
+            <div className="flex gap-5">
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
@@ -152,22 +150,38 @@ export const ProfileEditModal = ({
                 onChange={handleFileChange}
               />
             </div>
-            <div className="flex-1 space-y-1 border-b">
-              <label htmlFor="fullName" className="text-sm font-medium">
-                이름
-              </label>
-              <Input
-                id="fullName"
-                name="fullName"
-                type="text"
-                defaultValue={defaultName}
-                autoComplete="off"
-                className="w-full rounded-2xl bg-transparent px-0 py-5 text-sm focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-none shadow-none border-none ring-0 outline-none"
-                placeholder="이름을 입력하세요"
-              />
+            <div className="flex flex-1 gap-4 grow">
+              <div className="flex-1 space-y-1 border-b">
+                <Label htmlFor="lastName" className="text-sm font-medium">
+                  성
+                </Label>
+                <Input
+                  id="lastName"
+                  name="lastName"
+                  type="text"
+                  defaultValue={defaultLastName}
+                  autoComplete="family-name"
+                  className="w-full rounded-2xl bg-transparent px-0 py-5 text-sm focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-none shadow-none border-none ring-0 outline-none"
+                  placeholder="성을 입력하세요"
+                />
+              </div>
+              <div className="flex-1 space-y-1 border-b">
+                <Label htmlFor="firstName" className="text-sm font-medium">
+                  이름
+                </Label>
+                <Input
+                  id="firstName"
+                  name="firstName"
+                  type="text"
+                  defaultValue={defaultFirstName}
+                  autoComplete="given-name"
+                  className="w-full rounded-2xl bg-transparent px-0 py-5 text-sm focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-none shadow-none border-none ring-0 outline-none"
+                  placeholder="이름을 입력하세요"
+                />
+              </div>
             </div>
           </div>
-          {state?.error ? (
+          {state.error ? (
             <p className="rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
               {state.error}
             </p>
@@ -178,7 +192,7 @@ export const ProfileEditModal = ({
                 type="submit"
                 disabled={isPending}
                 className="w-full py-6 font-medium"
-                size={"lg"}
+                size="lg"
               >
                 {isPending ? "변경 중..." : "완료"}
               </Button>

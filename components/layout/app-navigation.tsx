@@ -123,7 +123,7 @@ export const AppNavigation = ({
                     variant="ghost"
                     size={isVertical ? "icon-lg" : "icon"}
                     className={cn(
-                      "rounded-2xl bg-transparent p-0 text-muted-foreground transition-colors",
+                      "rounded-2xl bg-transparent p-0 text-stone-400 transition-colors",
                       "hover:bg-muted/70 hover:text-foreground",
                       active && "bg-muted text-primary hover:bg-muted",
                       isVertical ? "h-12 w-12" : "h-12 w-12 flex-1"
@@ -147,8 +147,8 @@ export const AppNavigation = ({
               variant="ghost"
               size={isVertical ? "icon-lg" : "icon"}
               className={cn(
-                "rounded-2xl bg-transparent p-0 text-muted-foreground transition-colors",
-                "hover:bg-muted/70 hover:text-foreground",
+                "rounded-2xl bg-transparent p-0 text-stone-400 transition-colors",
+                "hover:bg-muted/70 hover:text-foreground ",
                 active && "bg-muted text-primary hover:bg-muted",
                 isVertical ? "h-12 w-12" : "h-12 w-12 flex-1"
               )}

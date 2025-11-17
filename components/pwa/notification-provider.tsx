@@ -72,7 +72,6 @@ export const NotificationProvider = () => {
     () => session?.getToken() ?? Promise.resolve(null)
   );
 
-  console.log(session?.user)
   useEffect(() => {
     requestPermission().then(setPermission).catch(console.error);
   }, []);

@@ -1,26 +1,24 @@
 import { buildProfileName } from "@/lib/profile-utils";
 import { getCurrentUser } from "@/services/auth-service";
-import { getProfileById } from "@/services/profile-service";
 import { AppNavigation } from "./app-navigation";
 
-const buildProfile = async (user: Awaited<ReturnType<typeof getCurrentUser>>) => {
+const buildProfile = (user: Awaited<ReturnType<typeof getCurrentUser>>) => {
   if (!user) return null;
-  const profileRecord = await getProfileById(user.id).catch(() => null);
-  const metadata = {
-    ...(user.user_metadata ?? {}),
-    custom_full_name: profileRecord?.fullName,
-    custom_avatar_url: profileRecord?.avatarUrl,
-  } as Record<string, unknown>;
-  const name = buildProfileName(
-    metadata,
-    user.email ?? profileRecord?.email ?? undefined
-  );
+  const metadata = (user.user_metadata ?? {}) as Record<string, unknown>;
+  const firstName =
+    user.firstName ?? (metadata?.name as string | undefined) ?? "";
+  const lastName =
+    user.lastName ?? (metadata?.nickname as string | undefined) ?? "";
+  const name =
+    [lastName, firstName].filter((part) => part?.length).join(" ") ||
+    buildProfileName(metadata, user.email ?? undefined);
   const avatarUrl =
     (metadata?.custom_avatar_url as string | undefined) ??
-    (metadata?.avatar_url as string | undefined);
+    (metadata?.avatar_url as string | undefined) ??
+    (metadata?.picture as string | undefined);
 
   return {
-    email: user.email ?? profileRecord?.email ?? "",
+    email: user.email ?? "",
     userId: user.id,
     name,
     avatarUrl,
@@ -29,7 +27,7 @@ const buildProfile = async (user: Awaited<ReturnType<typeof getCurrentUser>>) =>
 
 export const AppHeader = async () => {
   const user = await getCurrentUser();
-  const profile = await buildProfile(user);
+  const profile = buildProfile(user);
 
   return (
     <div className="order-last w-full md:order-first md:w-20 sticky bottom-0">

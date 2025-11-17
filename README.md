@@ -25,7 +25,6 @@ cp .env.example .env.local
 | `NEXT_PUBLIC_SITE_URL` | OAuth 리다이렉트에 사용할 공개 사이트 URL |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk Publishable Key |
 | `CLERK_SECRET_KEY` | Clerk Secret Key |
-| `CLERK_SUPABASE_TEMPLATE_NAME` | Clerk JWT Template 이름(기본값 `supabase`) |
 | `R2_ENDPOINT` | Cloudflare R2 S3 호환 엔드포인트 URL |
 | `R2_ACCESS_KEY_ID` | R2 액세스 키 |
 | `R2_SECRET_ACCESS_KEY` | R2 시크릿 키 |

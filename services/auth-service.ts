@@ -5,6 +5,8 @@ import { currentUser } from "@clerk/nextjs/server";
 export interface AppUser {
   id: string;
   email?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
   user_metadata: Record<string, unknown>;
 }
 
@@ -22,6 +24,8 @@ export const getCurrentUser = cache(async (): Promise<AppUser | null> => {
     return {
       id: user.id,
       email: user.primaryEmailAddress?.emailAddress ?? null,
+      firstName: user.firstName ?? null,
+      lastName: user.lastName ?? null,
       user_metadata: {
         username: user.username,
         full_name: user.fullName,

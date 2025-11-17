@@ -26,6 +26,8 @@ describe("auth-service with Clerk", () => {
     await expect(getCurrentUser()).resolves.toEqual({
       id: "user_1",
       email: "user@example.com",
+      firstName: "Codex",
+      lastName: "Reader",
       user_metadata: {
         username: "codex",
         full_name: "Codex Reader",
