@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import Link from "next/link";
 import { EllipsisVertical } from "lucide-react";
 
 import { deleteReadingEntryAction } from "@/app/(protected)/reading/actions";
@@ -18,21 +17,39 @@ interface ReadingEntryListProps {
   entries: ReadingEntry[];
 }
 
-const formatDateTime = (value: string) =>
-  new Intl.DateTimeFormat("ko", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(value));
+const formatRelativeDate = (value: string) => {
+  const targetDate = new Date(value);
+  const today = new Date();
 
-const buildPreview = (content: string) =>
-  content
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .join(" ");
+  const normalize = (date: Date) => {
+    const normalized = new Date(date);
+    normalized.setHours(0, 0, 0, 0);
+    return normalized;
+  };
+
+  const startOfToday = normalize(today);
+  const startOfTarget = normalize(targetDate);
+  const diffInMs = startOfToday.getTime() - startOfTarget.getTime();
+  const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+  if (diffInDays <= 0) {
+    return "오늘";
+  }
+
+  if (diffInDays < 7) {
+    return `${diffInDays}일`;
+  }
+
+  const year = targetDate.getFullYear();
+  const month = String(targetDate.getMonth() + 1).padStart(2, "0");
+  const day = String(targetDate.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};
+
+const buildPreview = (content: string) => content.trim();
+
+const buildEntryOwnerLabel = (entry: ReadingEntry) => entry.userId ?? "사용자";
 
 export const ReadingEntryList = ({ entries }: ReadingEntryListProps) => {
   const [entryList, setEntryList] = useState(entries);
@@ -95,22 +112,25 @@ export const ReadingEntryList = ({ entries }: ReadingEntryListProps) => {
       <ul className="space-y-4">
         {entryList.map((entry) => (
           <li key={entry.id} className="relative">
-            <Link
-              href={`/reading/${entry.id}`}
-              className="block rounded-lg bg-card p-4 pr-14 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 hover:bg-background-service"
-            >
-              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                <div>
-                  <h3 className="text-lg font-semibold text-foreground">
-                    {entry.bookTitle}
-                  </h3>
-                  <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-                    {buildPreview(entry.content)}
-                  </p>
+            <article className="rounded-lg bg-card p-4 pr-14 transition hover:bg-background-service">
+              <div className="space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                    <span className="font-medium text-foreground">
+                      {buildEntryOwnerLabel(entry)}
+                    </span>
+                    <span>›</span>
+                    <span className="text-base font-semibold text-foreground">
+                      {entry.bookTitle}
+                    </span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    {formatRelativeDate(entry.createdAt)}
+                  </span>
                 </div>
-                <div className="text-right text-xs text-muted-foreground">
-                  {formatDateTime(entry.createdAt)}
-                </div>
+                <p className="whitespace-pre-line text-sm text-muted-foreground">
+                  {buildPreview(entry.content)}
+                </p>
               </div>
               {entry.userKeywords.length > 0 ? (
                 <ul className="mt-3 flex flex-wrap gap-2">
@@ -124,7 +144,7 @@ export const ReadingEntryList = ({ entries }: ReadingEntryListProps) => {
                   ))}
                 </ul>
               ) : null}
-            </Link>
+            </article>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
