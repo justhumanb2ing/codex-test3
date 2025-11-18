@@ -1,5 +1,6 @@
 
 import { createServerSupabaseClient } from "@/config/supabase"
+import { getProfilesByUserIds } from "@/services/profile-service"
 
 export interface ReadingEntry {
   id: string
@@ -8,6 +9,8 @@ export interface ReadingEntry {
   content: string
   userKeywords: string[]
   createdAt: string
+  authorName?: string | null
+  authorAvatarUrl?: string | null
 }
 
 export interface CreateReadingEntryInput {
@@ -94,9 +97,17 @@ export const listReadingEntries = async (
     return buildErrorResult(error?.message)
   }
 
+  const baseEntries = (data as ReadingEntryRow[]).map(mapRowToEntry)
+  const uniqueUserIds = Array.from(new Set(baseEntries.map((entry) => entry.userId)))
+  const profileMap = await getProfilesByUserIds(uniqueUserIds)
+
   return {
     success: true,
-    data: (data as ReadingEntryRow[]).map(mapRowToEntry),
+    data: baseEntries.map((entry) => ({
+      ...entry,
+      authorName: profileMap[entry.userId]?.displayName ?? null,
+      authorAvatarUrl: profileMap[entry.userId]?.avatarUrl ?? null,
+    })),
   }
 }
 
@@ -126,9 +137,16 @@ export const getReadingEntry = async (
     return { success: true, data: null }
   }
 
+  const entry = mapRowToEntry(data as ReadingEntryRow)
+  const profileMap = await getProfilesByUserIds([entry.userId])
+
   return {
     success: true,
-    data: mapRowToEntry(data as ReadingEntryRow),
+    data: {
+      ...entry,
+      authorName: profileMap[entry.userId]?.displayName ?? null,
+      authorAvatarUrl: profileMap[entry.userId]?.avatarUrl ?? null,
+    },
   }
 }
 

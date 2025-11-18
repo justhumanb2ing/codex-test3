@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { EllipsisVertical } from "lucide-react";
+import { ChevronRightIcon, EllipsisVertical } from "lucide-react";
 
 import { deleteReadingEntryAction } from "@/app/(protected)/reading/actions";
 import { Button } from "@/components/ui/button";
@@ -49,7 +49,12 @@ const formatRelativeDate = (value: string) => {
 
 const buildPreview = (content: string) => content.trim();
 
-const buildEntryOwnerLabel = (entry: ReadingEntry) => entry.userId ?? "사용자";
+const buildEntryOwnerLabel = (entry: ReadingEntry) => {
+  if (entry.authorName && entry.authorName.trim().length > 0) {
+    return entry.authorName;
+  }
+  return "이름 없는 사용자";
+};
 
 export const ReadingEntryList = ({ entries }: ReadingEntryListProps) => {
   const [entryList, setEntryList] = useState(entries);
@@ -114,21 +119,23 @@ export const ReadingEntryList = ({ entries }: ReadingEntryListProps) => {
           <li key={entry.id} className="relative">
             <article className="rounded-lg bg-card p-4 pr-14 transition hover:bg-background-service">
               <div className="space-y-3">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-                    <span className="font-medium text-foreground">
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground">
+                    <span className="text-base font-medium text-foreground">
                       {buildEntryOwnerLabel(entry)}
                     </span>
-                    <span>›</span>
-                    <span className="text-base font-semibold text-foreground">
+                    <span>
+                      <ChevronRightIcon size={12} />
+                    </span>
+                    <span className="text-base font-medium text-foreground">
                       {entry.bookTitle}
                     </span>
                   </div>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-sm text-muted-foreground mb-0.5">
                     {formatRelativeDate(entry.createdAt)}
                   </span>
                 </div>
-                <p className="whitespace-pre-line text-sm text-muted-foreground">
+                <p className="whitespace-pre-line text-base text-foreground">
                   {buildPreview(entry.content)}
                 </p>
               </div>

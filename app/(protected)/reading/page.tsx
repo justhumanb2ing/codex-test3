@@ -4,6 +4,7 @@ import { ReadingEntryList } from "@/components/reading/reading-entry-list"
 import { ReadingEntryModal } from "@/components/reading/reading-entry-modal"
 import { getCurrentUser } from "@/services/auth-service"
 import { listReadingEntries } from "@/services/reading-log-service"
+import { upsertProfileFromClerkUser } from "@/services/profile-service"
 
 interface ReadingEntriesPageProps {
   searchParams?: Record<string, string | string[] | undefined>
@@ -18,6 +19,7 @@ export default async function ReadingEntriesPage({
     redirect("/sign-in")
   }
 
+  await upsertProfileFromClerkUser(user)
   const result = await listReadingEntries(user.id)
   const entries = result.success && result.data ? result.data : []
   const shouldOpenModal =

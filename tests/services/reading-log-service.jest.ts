@@ -5,9 +5,14 @@ import {
   listReadingEntries,
 } from "@/services/reading-log-service"
 import { createServerSupabaseClient } from "@/config/supabase"
+import { getProfilesByUserIds } from "@/services/profile-service"
 
 jest.mock("@/config/supabase", () => ({
   createServerSupabaseClient: jest.fn(),
+}))
+
+jest.mock("@/services/profile-service", () => ({
+  getProfilesByUserIds: jest.fn(),
 }))
 
 type SupabaseInsertChain = {
@@ -29,6 +34,9 @@ type MockSupabaseClient = {
 
 const mockedCreateClient = createServerSupabaseClient as jest.MockedFunction<
   typeof createServerSupabaseClient
+>
+const mockedGetProfiles = getProfilesByUserIds as jest.MockedFunction<
+  typeof getProfilesByUserIds
 >
 
 const createInsertClient = (
@@ -119,6 +127,13 @@ describe("reading-log-service", () => {
   it("lists reading entries ordered by created_at", async () => {
     const row = buildRow()
     const client = createListClient([row], null)
+    mockedGetProfiles.mockResolvedValue({
+      "user-1": {
+        userId: "user-1",
+        displayName: "홍길동",
+        avatarUrl: null,
+      },
+    })
     mockedCreateClient.mockResolvedValue(client as never)
 
     const result = await listReadingEntries("user-1")
@@ -126,6 +141,7 @@ describe("reading-log-service", () => {
     expect(result.success).toBe(true)
     expect(result.data).toHaveLength(1)
     expect(result.data?.[0]?.id).toBe(row.id)
+    expect(result.data?.[0]?.authorName).toBe("홍길동")
   })
 
   it("returns null data when entry is not found", async () => {
@@ -148,6 +164,25 @@ describe("reading-log-service", () => {
 
     expect(result.success).toBe(false)
     expect(result.error).toBe("bad request")
+  })
+
+  it("returns entry with author profile info", async () => {
+    const row = buildRow()
+    const client = createGetClient(row, null)
+    mockedCreateClient.mockResolvedValue(client as never)
+    mockedGetProfiles.mockResolvedValue({
+      "user-1": {
+        userId: "user-1",
+        displayName: "홍길동",
+        avatarUrl: "avatar",
+      },
+    })
+
+    const result = await getReadingEntry("user-1", "entry-1")
+
+    expect(result.success).toBe(true)
+    expect(result.data?.authorName).toBe("홍길동")
+    expect(result.data?.authorAvatarUrl).toBe("avatar")
   })
 
   it("deletes a reading entry", async () => {
