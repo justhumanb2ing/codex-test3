@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import { Toast } from "@base-ui-components/react/toast"
 import {
   CircleAlertIcon,
@@ -72,6 +73,9 @@ function ToastList({ position = "bottom-right" }: { position: ToastPosition }) {
           const Icon = toast.type
             ? TOAST_ICONS[toast.type as keyof typeof TOAST_ICONS]
             : null
+          const toastData = (toast.data ?? {}) as {
+            imageUrl?: string
+          }
 
           return (
             <Toast.Root
@@ -128,7 +132,18 @@ function ToastList({ position = "bottom-right" }: { position: ToastPosition }) {
               )}
             >
               <Toast.Content className="flex items-center justify-between gap-1.5 overflow-hidden text-sm transition-opacity duration-250 data-behind:pointer-events-none data-behind:opacity-0 data-expanded:pointer-events-auto data-expanded:opacity-100">
-                <div className="flex gap-2">
+                <div className="flex gap-3">
+                  {toastData.imageUrl && (
+                    <div className="relative size-12 overflow-hidden rounded-xl border border-border/50 bg-muted">
+                      <Image
+                        src={toastData.imageUrl}
+                        alt="toast-image"
+                        fill
+                        sizes="48px"
+                        className="object-cover"
+                      />
+                    </div>
+                  )}
                   {Icon && (
                     <div
                       className="mt-.5 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&>svg]:h-[1lh] [&>svg]:w-4"

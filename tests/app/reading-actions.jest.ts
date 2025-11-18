@@ -4,6 +4,7 @@ import {
 } from "@/app/(protected)/reading/actions"
 import { getCurrentUser } from "@/services/auth-service"
 import { createReadingEntry, deleteReadingEntry } from "@/services/reading-log-service"
+import { processAchievements } from "@/services/achievement-engine"
 import { redirect } from "next/navigation"
 
 jest.mock("next/navigation", () => ({
@@ -19,6 +20,10 @@ jest.mock("@/services/reading-log-service", () => ({
   deleteReadingEntry: jest.fn(),
 }))
 
+jest.mock("@/services/achievement-engine", () => ({
+  processAchievements: jest.fn(),
+}))
+
 const mockedGetCurrentUser = getCurrentUser as jest.MockedFunction<
   typeof getCurrentUser
 >
@@ -27,6 +32,9 @@ const mockedCreateReadingEntry = createReadingEntry as jest.MockedFunction<
 >
 const mockedDeleteReadingEntry = deleteReadingEntry as jest.MockedFunction<
   typeof deleteReadingEntry
+>
+const mockedProcessAchievements = processAchievements as jest.MockedFunction<
+  typeof processAchievements
 >
 const mockedRedirect = redirect as jest.MockedFunction<typeof redirect>
 
@@ -78,6 +86,11 @@ describe("createReadingEntryAction", () => {
     await createReadingEntryAction(undefined, formData)
 
     expect(mockedCreateReadingEntry).toHaveBeenCalled()
+    expect(mockedProcessAchievements).toHaveBeenCalledWith({
+      userId: "user-1",
+      event: "READING_ENTRY_CREATED",
+      payload: { entryId: "entry-1" },
+    })
     expect(mockedRedirect).toHaveBeenCalledWith("/reading/entry-1")
   })
 

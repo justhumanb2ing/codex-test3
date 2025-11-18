@@ -9,6 +9,7 @@ import {
   type ReadingLogResult,
   deleteReadingEntry,
 } from "@/services/reading-log-service"
+import { processAchievements } from "@/services/achievement-engine"
 
 export interface CreateReadingEntryActionState {
   error?: string
@@ -76,6 +77,12 @@ export const createReadingEntryAction = async (
   if (!result.success || !result.data) {
     return handleCreationError(result)
   }
+
+  await processAchievements({
+    userId: user.id,
+    event: "READING_ENTRY_CREATED",
+    payload: { entryId: result.data.id },
+  })
 
   redirect(`/reading/${result.data.id}`)
 }

@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://codex.dev/schemas/badge.schema.json",
+  "title": "Badge",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "배지 고유 식별자"
+    },
+    "code": {
+      "type": "string",
+      "minLength": 1,
+      "description": "배지를 구분하는 코드"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "배지 이름"
+    },
+    "description": {
+      "type": "string",
+      "description": "배지 설명"
+    },
+    "icon_url": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uri-reference",
+      "description": "아이콘 경로 또는 URL"
+    },
+    "rarity": {
+      "type": "string",
+      "enum": [
+        "common",
+        "rare",
+        "legendary"
+      ],
+      "description": "희귀도 구분"
+    }
+  },
+  "required": [
+    "id",
+    "code",
+    "name",
+    "rarity"
+  ],
+  "additionalProperties": false
+}

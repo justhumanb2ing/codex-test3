@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event"
 import ProfileSettingsPage from "@/app/(protected)/profile/[userId]/page"
 import { getCurrentUser } from "@/services/auth-service"
 import { listReadingEntries } from "@/services/reading-log-service"
+import { getProfileAchievements } from "@/services/achievement-service"
 import { notFound } from "next/navigation"
 
 jest.mock("next/navigation", () => ({
@@ -18,6 +19,10 @@ jest.mock("@/services/reading-log-service", () => ({
   listReadingEntries: jest.fn(),
 }))
 
+jest.mock("@/services/achievement-service", () => ({
+  getProfileAchievements: jest.fn(),
+}))
+
 jest.mock("@/components/profile/profile-edit-modal", () => ({
   ProfileEditModal: () => <div data-testid="profile-edit-modal" />,
 }))
@@ -28,6 +33,8 @@ const mockedGetCurrentUser = getCurrentUser as jest.MockedFunction<
 const mockedListReadingEntries = listReadingEntries as jest.MockedFunction<
   typeof listReadingEntries
 >
+const mockedGetProfileAchievements =
+  getProfileAchievements as jest.MockedFunction<typeof getProfileAchievements>
 const mockedNotFound = notFound as jest.MockedFunction<typeof notFound>
 
 const buildParams = (userId?: string) =>
@@ -37,6 +44,7 @@ describe("ProfileSettingsPage", () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockedNotFound.mockImplementation(() => undefined as never)
+    mockedGetProfileAchievements.mockResolvedValue([])
   })
 
   const viewer = {

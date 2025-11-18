@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://codex.dev/schemas/achievement-action.schema.json",
+  "title": "AchievementAction",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "행동 로그 ID"
+    },
+    "user_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "사용자 ID"
+    },
+    "action_code": {
+      "type": "string",
+      "minLength": 1,
+      "description": "행동 코드"
+    },
+    "payload": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "행동과 관련된 메타데이터",
+      "additionalProperties": true
+    },
+    "recorded_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "행동이 기록된 시각"
+    }
+  },
+  "required": [
+    "id",
+    "user_id",
+    "action_code",
+    "recorded_at"
+  ],
+  "additionalProperties": false
+}

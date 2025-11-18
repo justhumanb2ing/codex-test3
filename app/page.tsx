@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { AchievementTester } from "@/components/achievements/achievement-tester";
 import { NotificationTester } from "@/components/notifications/notification-tester";
 import { BookSearchBar } from "@/components/reading/book-search-bar";
 
@@ -32,6 +33,7 @@ export default function HomePage() {
         </div>
       </div>
       <NotificationTester />
+      <AchievementTester />
     </section>
   );
 }

@@ -3,6 +3,7 @@ import { render, screen } from "@testing-library/react"
 import ReadingEntriesPage from "@/app/(protected)/reading/page"
 import { getCurrentUser } from "@/services/auth-service"
 import { listReadingEntries } from "@/services/reading-log-service"
+import { upsertProfileFromClerkUser } from "@/services/profile-service"
 
 jest.mock("@/components/reading/reading-entry-modal", () => ({
   ReadingEntryModal: () => <div data-testid="reading-entry-modal" />,
@@ -16,11 +17,18 @@ jest.mock("@/services/reading-log-service", () => ({
   listReadingEntries: jest.fn(),
 }))
 
+jest.mock("@/services/profile-service", () => ({
+  upsertProfileFromClerkUser: jest.fn(),
+}))
+
 const mockedGetCurrentUser = getCurrentUser as jest.MockedFunction<
   typeof getCurrentUser
 >
 const mockedListReadingEntries = listReadingEntries as jest.MockedFunction<
   typeof listReadingEntries
+>
+const mockedUpsertProfile = upsertProfileFromClerkUser as jest.MockedFunction<
+  typeof upsertProfileFromClerkUser
 >
 
 describe("ReadingEntriesPage", () => {
@@ -30,6 +38,7 @@ describe("ReadingEntriesPage", () => {
 
   it("renders entries returned from the service", async () => {
     mockedGetCurrentUser.mockResolvedValue({ id: "user-1" } as never)
+    mockedUpsertProfile.mockResolvedValue(null)
     mockedListReadingEntries.mockResolvedValue({
       success: true,
       data: [
@@ -53,6 +62,7 @@ describe("ReadingEntriesPage", () => {
 
   it("shows error message when service fails", async () => {
     mockedGetCurrentUser.mockResolvedValue({ id: "user-1" } as never)
+    mockedUpsertProfile.mockResolvedValue(null)
     mockedListReadingEntries.mockResolvedValue({
       success: false,
       error: "목록을 불러오지 못했습니다.",

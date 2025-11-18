@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://codex.dev/schemas/user-badge.schema.json",
+  "title": "UserBadge",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "레코드 고유 ID"
+    },
+    "user_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "사용자 ID"
+    },
+    "badge_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "배지 ID"
+    },
+    "awarded_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "배지를 지급한 일시"
+    },
+    "achievement_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid",
+      "description": "어떤 업적으로 획득했는지"
+    }
+  },
+  "required": [
+    "id",
+    "user_id",
+    "badge_id",
+    "awarded_at"
+  ],
+  "additionalProperties": false
+}

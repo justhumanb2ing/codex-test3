@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://codex.dev/schemas/user-achievement.schema.json",
+  "title": "UserAchievement",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "레코드 고유 ID"
+    },
+    "user_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "사용자 ID"
+    },
+    "achievement_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "업적 ID"
+    },
+    "achieved_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "업적 달성 일시"
+    },
+    "source_event_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "관련 이벤트(행동 로그) ID"
+    },
+    "context": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "추가 메타데이터",
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "id",
+    "user_id",
+    "achievement_id",
+    "achieved_at",
+    "source_event_id"
+  ],
+  "additionalProperties": false
+}

@@ -5,6 +5,7 @@ import { ProfileEditModal } from "@/components/profile/profile-edit-modal";
 import { ProfileTabs } from "@/components/profile/profile-tabs";
 import { getCurrentUser } from "@/services/auth-service";
 import { listReadingEntries } from "@/services/reading-log-service";
+import { getProfileAchievements } from "@/services/achievement-service";
 import { buildProfileName } from "@/lib/profile-utils";
 
 const buildAvatarUrl = (metadata: Record<string, unknown>) => {
@@ -42,9 +43,10 @@ export default async function ProfileSettingsPage({
     notFound();
   }
 
-  const [currentUser, readingsResult] = await Promise.all([
+  const [currentUser, readingsResult, profileAchievements] = await Promise.all([
     getCurrentUser(),
     listReadingEntries(userId),
+    getProfileAchievements(userId),
   ]);
 
   if (!currentUser || currentUser.id !== userId) {
@@ -106,6 +108,7 @@ export default async function ProfileSettingsPage({
         entries={entries}
         historyCount={historyCount}
         hasEnoughHistory={hasEnoughHistory}
+        achievements={profileAchievements}
       />
     </main>
   );

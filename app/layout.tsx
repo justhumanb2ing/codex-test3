@@ -9,6 +9,7 @@ import { AppHeader } from "@/components/layout/app-header";
 import { MobileTopBar } from "@/components/layout/mobile-top-bar";
 import { NotificationProvider } from "@/components/pwa/notification-provider";
 import { PwaProvider } from "@/components/pwa/pwa-provider";
+import { ToastProvider } from "@/components/ui/toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -57,21 +58,23 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} bg-background-service text-foreground antialiased`}
         >
-          <PwaProvider />
-          <NotificationProvider />
-          <div className="flex min-h-screen flex-col md:flex-row">
-            <AppHeader />
-            <div className="flex-1">
-              <div className="flex h-full flex-col">
-                <MobileTopBar />
-                <div className="flex-1 md:pb-0 md:overflow-y-auto">
-                  <main className="mx-auto w-full max-w-3xl px-4 py-8 pb-0">
-                    {children}
-                  </main>
+          <ToastProvider position="bottom-center">
+            <PwaProvider />
+            <NotificationProvider />
+            <div className="flex min-h-screen flex-col md:flex-row">
+              <AppHeader />
+              <div className="flex-1">
+                <div className="flex h-full flex-col">
+                  <MobileTopBar />
+                  <div className="flex-1 md:pb-0 md:overflow-y-auto">
+                    <main className="mx-auto w-full max-w-3xl px-4 py-8 pb-0">
+                      {children}
+                    </main>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </ToastProvider>
         </body>
       </html>
     </ClerkProvider>

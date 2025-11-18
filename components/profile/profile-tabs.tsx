@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
+import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,9 @@ import {
 } from "@/components/ui/empty";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ReadingEntryList } from "@/components/reading/reading-entry-list";
+import { Badge } from "@/components/ui/badge";
 import type { ReadingEntry } from "@/services/reading-log-service";
+import type { ProfileAchievement } from "@/services/achievement-service";
 import { cn } from "@/lib/utils";
 
 type ProfileTabValue = "records" | "timeline" | "achievements" | "insights";
@@ -34,12 +37,14 @@ interface ProfileTabsProps {
   entries: ReadingEntry[];
   historyCount: number;
   hasEnoughHistory: boolean;
+  achievements: ProfileAchievement[];
 }
 
 export const ProfileTabs = ({
   entries,
   historyCount,
   hasEnoughHistory,
+  achievements,
 }: ProfileTabsProps) => {
   const [activeTab, setActiveTab] = useState<ProfileTabValue>("records");
   const [indicatorStyle, setIndicatorStyle] = useState({
@@ -165,9 +170,7 @@ export const ProfileTabs = ({
         )}
       </TabsContent>
       <TabsContent value="achievements" className="p-6">
-        <div className="mt-6 rounded-2xl border border-dashed border-border/60 bg-muted/20 p-6 text-sm text-muted-foreground">
-          새로운 업적을 준비 중입니다. 조금만 기다려주세요!
-        </div>
+        <AchievementsOverview achievements={achievements} />
       </TabsContent>
       <TabsContent value="insights" className="p-6">
         {!hasEnoughHistory ? (
@@ -193,5 +196,104 @@ export const ProfileTabs = ({
         ) : null}
       </TabsContent>
     </Tabs>
+  );
+};
+
+const AchievementsOverview = ({
+  achievements,
+}: {
+  achievements: ProfileAchievement[];
+}) => {
+  if (achievements.length === 0) {
+    return (
+      <Empty className="rounded-2xl border border-dashed border-border/60 bg-muted/20">
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <Sparkles className="size-5 text-primary" />
+          </EmptyMedia>
+          <EmptyTitle>아직 정의된 업적이 없습니다.</EmptyTitle>
+          <EmptyDescription>
+            새로운 업적이 추가되면 이곳에서 모든 업적을 확인할 수 있습니다.
+          </EmptyDescription>
+        </EmptyHeader>
+      </Empty>
+    );
+  }
+
+  const unlockedCount = achievements.filter((item) => item.isUnlocked).length;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col gap-2 rounded-2xl border border-border/60 bg-muted/10 p-4 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
+        <div>
+          <p className="text-base font-semibold text-foreground">
+            총 {achievements.length}개의 업적
+          </p>
+          <p>달성 여부와 관계없이 모든 업적 리스트를 확인할 수 있어요.</p>
+        </div>
+        <Badge variant="secondary" className="w-fit rounded-full">
+          {unlockedCount}/{achievements.length} 달성
+        </Badge>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        {achievements.map((achievement) => (
+          <div
+            key={achievement.id}
+            className={cn(
+              "group relative flex flex-col gap-4 rounded-2xl border border-border/60 p-4 shadow-sm transition",
+              achievement.isUnlocked
+                ? "bg-card"
+                : "bg-muted/20 text-muted-foreground"
+            )}
+          >
+            <div className="flex items-center gap-4">
+              <div className="size-20 overflow-hidden rounded-2xl border border-border/60 bg-muted">
+                {achievement.imageUrl ? (
+                  <Image
+                    src={achievement.imageUrl}
+                    alt={`${achievement.title} 업적 이미지`}
+                    width={80}
+                    height={80}
+                    className={cn(
+                      "size-full object-cover transition",
+                      !achievement.isUnlocked && "grayscale opacity-70"
+                    )}
+                  />
+                ) : (
+                  <div className="flex size-full items-center justify-center text-xs text-muted-foreground">
+                    No Image
+                  </div>
+                )}
+              </div>
+              <div className="flex flex-1 flex-col gap-1">
+                <div className="flex items-center justify-between">
+                  <p className="text-base font-semibold text-foreground">
+                    {achievement.title}
+                  </p>
+                  <Badge
+                    variant={achievement.isUnlocked ? "default" : "outline"}
+                    className="rounded-full"
+                  >
+                    {achievement.isUnlocked ? "달성 완료" : "미달성"}
+                  </Badge>
+                </div>
+                <p className="text-sm text-muted-foreground line-clamp-2">
+                  {achievement.description ?? "업적 설명이 준비 중입니다."}
+                </p>
+                {achievement.isUnlocked && achievement.achievedAt ? (
+                  <p className="text-xs text-foreground/70">
+                    {new Date(achievement.achievedAt).toLocaleString("ko-KR", {
+                      month: "short",
+                      day: "numeric",
+                    })}
+                    에 달성
+                  </p>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 };

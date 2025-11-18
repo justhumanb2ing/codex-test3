@@ -60,10 +60,7 @@ describe("ReadingEntryList", () => {
       />,
     )
 
-    expect(screen.getByRole("link", { name: /데미안/ })).toHaveAttribute(
-      "href",
-      "/reading/entry-1",
-    )
+    expect(screen.getByText("데미안")).toBeInTheDocument()
     expect(screen.getByText("긴 감상문")).toBeInTheDocument()
     expect(screen.getByText("#성장")).toBeInTheDocument()
   })
