@@ -20,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import type { ReadingEntry } from "@/services/reading-log-service";
 import type { ProfileAchievement } from "@/services/achievement-service";
 import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 type ProfileTabValue = "records" | "timeline" | "achievements" | "insights";
 
@@ -224,30 +225,22 @@ const AchievementsOverview = ({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-2 rounded-2xl border border-border/60 bg-muted/10 p-4 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
-        <div>
-          <p className="text-base font-semibold text-foreground">
-            총 {achievements.length}개의 업적
-          </p>
-          <p>달성 여부와 관계없이 모든 업적 리스트를 확인할 수 있어요.</p>
-        </div>
-        <Badge variant="secondary" className="w-fit rounded-full">
-          {unlockedCount}/{achievements.length} 달성
+      <div className="flex flex-col gap-2 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
+        <Badge variant="secondary" className="w-fit rounded-sm">
+          총 {unlockedCount}/{achievements.length} 달성
         </Badge>
       </div>
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-12 md:grid-cols-3">
         {achievements.map((achievement) => (
           <div
             key={achievement.id}
             className={cn(
-              "group relative flex flex-col gap-4 rounded-2xl border border-border/60 p-4 shadow-sm transition",
-              achievement.isUnlocked
-                ? "bg-card"
-                : "bg-muted/20 text-muted-foreground"
+              "group relative flex flex-col gap-4 rounded-2xl transition",
+              !achievement.isUnlocked && "text-muted-foreground"
             )}
           >
-            <div className="flex items-center gap-4">
-              <div className="size-20 overflow-hidden rounded-2xl border border-border/60 bg-muted">
+            <div className="flex flex-col items-center gap-4">
+              <div className="size-20 overflow-hidden bg-muted aspect-square w-full h-fit">
                 {achievement.imageUrl ? (
                   <Image
                     src={achievement.imageUrl}
@@ -265,30 +258,36 @@ const AchievementsOverview = ({
                   </div>
                 )}
               </div>
-              <div className="flex flex-1 flex-col gap-1">
-                <div className="flex items-center justify-between">
-                  <p className="text-base font-semibold text-foreground">
-                    {achievement.title}
-                  </p>
-                  <Badge
+              <div className="flex flex-1 flex-col gap-1 text-center">
+                <div className="flex items-center justify-center">
+                  <Tooltip>
+                    <TooltipTrigger className="text-base font-semibold">
+                      {achievement.title}
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">
+                      <p className="text-sm line-clamp-2">
+                        {achievement.description ??
+                          "업적 설명이 준비 중입니다."}
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                  {/* <Badge
                     variant={achievement.isUnlocked ? "default" : "outline"}
                     className="rounded-full"
                   >
                     {achievement.isUnlocked ? "달성 완료" : "미달성"}
-                  </Badge>
+                  </Badge> */}
                 </div>
-                <p className="text-sm text-muted-foreground line-clamp-2">
-                  {achievement.description ?? "업적 설명이 준비 중입니다."}
-                </p>
                 {achievement.isUnlocked && achievement.achievedAt ? (
                   <p className="text-xs text-foreground/70">
                     {new Date(achievement.achievedAt).toLocaleString("ko-KR", {
                       month: "short",
                       day: "numeric",
                     })}
-                    에 달성
                   </p>
-                ) : null}
+                ) : (
+                  <p className="text-xs text-foreground/70">미달성</p>
+                )}
               </div>
             </div>
           </div>
