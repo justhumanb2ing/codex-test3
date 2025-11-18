@@ -55,7 +55,7 @@ export const ReadingEntryModal = ({
         {trigger ? trigger : <Button type="button">새 기록 작성</Button>}
       </DialogTrigger>
       <DialogContent
-        className="w-full max-w-3xl rounded-3xl border border-border/60 bg-background/95 text-left shadow-2xl p-0 py-3"
+        className="w-full max-w-3xl rounded-3xl border border-border/60 bg-background/95 text-left shadow-2xl p-0 py-3 max-h-[calc(100vh-4rem)] overflow-hidden grid-rows-[auto,1fr]"
         showCloseButton={false}
       >
         <DialogHeader className="sm:text-center flex flex-row px-4 items-center justify-between border-b pb-3">

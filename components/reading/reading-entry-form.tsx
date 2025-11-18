@@ -1,6 +1,12 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import {
+  useActionState,
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+} from "react";
 
 import {
   createReadingEntryAction,
@@ -19,6 +25,8 @@ interface ReadingEntryFormProps {
 const buildInitialState = (error?: string): CreateReadingEntryActionState => ({
   error,
 });
+const MODAL_VERTICAL_MARGIN_PX = 64;
+const MIN_TEXTAREA_HEIGHT_PX = 192;
 
 export const ReadingEntryForm = ({
   initialErrorMessage,
@@ -30,11 +38,64 @@ export const ReadingEntryForm = ({
   );
   const [bookTitle, setBookTitle] = useState("");
   const [content, setContent] = useState("");
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const displayName =
     currentUserName.trim().length > 0 ? currentUserName : "사용자";
+  const getMaxTextareaHeight = (nonTextareaHeight: number) => {
+    if (typeof window === "undefined") {
+      return MIN_TEXTAREA_HEIGHT_PX;
+    }
+    const viewportHeight = window.innerHeight;
+    const maxModalHeight = Math.max(
+      viewportHeight - MODAL_VERTICAL_MARGIN_PX,
+      MIN_TEXTAREA_HEIGHT_PX
+    );
+    const availableHeight = maxModalHeight - nonTextareaHeight;
+    if (availableHeight <= MIN_TEXTAREA_HEIGHT_PX) {
+      return Math.max(availableHeight, 0);
+    }
+    return availableHeight;
+  };
+  const adjustTextareaHeight = (element: HTMLTextAreaElement | null) => {
+    if (!element) {
+      return;
+    }
+    const dialogContent = element.closest(
+      "[data-slot='dialog-content']"
+    ) as HTMLElement | null;
+    const previousHeight = element.offsetHeight;
+    const nonTextareaHeight =
+      dialogContent && previousHeight > 0
+        ? Math.max(dialogContent.scrollHeight - previousHeight, 0)
+        : 0;
+    element.style.height = "auto";
+    const desiredHeight = element.scrollHeight;
+    const maxHeight = getMaxTextareaHeight(nonTextareaHeight);
+    const resolvedHeight = Math.min(desiredHeight, maxHeight);
+    element.style.height = `${resolvedHeight}px`;
+    element.style.overflowY = desiredHeight > resolvedHeight ? "auto" : "hidden";
+  };
+  const handleContentChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+    setContent(event.target.value);
+    adjustTextareaHeight(event.currentTarget);
+  };
+
+  useEffect(() => {
+    adjustTextareaHeight(textareaRef.current);
+    if (typeof window === "undefined") {
+      return;
+    }
+    const resizeHandler = () => {
+      adjustTextareaHeight(textareaRef.current);
+    };
+    window.addEventListener("resize", resizeHandler);
+    return () => {
+      window.removeEventListener("resize", resizeHandler);
+    };
+  }, []);
 
   return (
-    <div className="space-y-2 px-6">
+    <div className="flex h-full min-h-0 flex-col gap-4 px-6 py-4 overflow-hidden">
       <div
         className="text-base text-muted-foreground flex items-center gap-1 w-full"
         aria-label={`${displayName} > 책 추가`}
@@ -53,16 +114,20 @@ export const ReadingEntryForm = ({
           placeholder="책 추가"
         />
       </div>
-      <form action={formAction} className="space-y-6 pb-4">
-        <div className="space-y-2">
+      <form
+        action={formAction}
+        className="flex flex-1 min-h-0 flex-col gap-6 overflow-hidden pb-4"
+      >
+        <div className="flex-1 min-h-0 overflow-hidden">
           <Textarea
             id="content"
             name="content"
             required
             autoFocus
             value={content}
-            onChange={(event) => setContent(event.target.value)}
-            className="h-48 w-full rounded-none border-none bg-transparent p-0 text-base transition focus-visible:border-transparent focus-visible:ring-0 shadow-none resize-none placeholder:text-base"
+            onChange={handleContentChange}
+            ref={textareaRef}
+            className="min-h-[12rem] w-full rounded-none border-none bg-transparent p-0 text-base transition focus-visible:border-transparent focus-visible:ring-0 shadow-none resize-none placeholder:text-base overflow-hidden"
             placeholder="어떤 감상이 있었나요?"
           />
         </div>
@@ -76,7 +141,7 @@ export const ReadingEntryForm = ({
         ) : null}
         <Button
           type="submit"
-          className="w-full text-base"
+          className="w-full text-base shrink-0"
           size={"lg"}
           disabled={isPending}
         >
