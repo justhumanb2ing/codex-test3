@@ -43,6 +43,7 @@ export const AppNavigation = ({
   const notificationsHref = hasProfile
     ? `/notifications/${profile?.userId}`
     : "/sign-in";
+  const currentUserName = profile?.name ?? "사용자";
 
   const items: NavItem[] = [
     {
@@ -117,6 +118,7 @@ export const AppNavigation = ({
               <ReadingEntryModal
                 key={item.label}
                 redirectOnClose={null}
+                currentUserName={currentUserName}
                 trigger={
                   <Button
                     type="button"

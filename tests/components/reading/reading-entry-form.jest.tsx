@@ -8,16 +8,23 @@ jest.mock("@/app/(protected)/reading/actions", () => ({
 
 describe("ReadingEntryForm", () => {
   it("renders required fields", () => {
-    render(<ReadingEntryForm />)
+    render(<ReadingEntryForm currentUserName="홍길동" />)
 
     expect(screen.getByLabelText("책 제목")).toBeInTheDocument()
     expect(screen.getByLabelText("감상문")).toBeInTheDocument()
-    expect(screen.getByLabelText("키워드 (쉼표로 구분)")).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: "기록 저장" })).toBeInTheDocument()
+    expect(
+      screen.getByLabelText("홍길동 > 책 추가"),
+    ).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "게시" })).toBeInTheDocument()
   })
 
   it("shows initial error message when provided", () => {
-    render(<ReadingEntryForm initialErrorMessage="저장에 실패했습니다." />)
+    render(
+      <ReadingEntryForm
+        currentUserName="홍길동"
+        initialErrorMessage="저장에 실패했습니다."
+      />,
+    )
 
     expect(screen.getByRole("alert")).toHaveTextContent("저장에 실패했습니다.")
   })

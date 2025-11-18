@@ -47,7 +47,7 @@ const handleCreationError = (
 export const createReadingEntryAction = async (
   _prevState: CreateReadingEntryActionState = initialState,
   formData: FormData,
-): Promise<CreateReadingEntryActionState | void> => {
+): Promise<CreateReadingEntryActionState> => {
   const bookTitle = readField(formData, "bookTitle")
   const content = readField(formData, "content")
   const keywords = parseKeywords(readField(formData, "keywords"))
@@ -85,6 +85,7 @@ export const createReadingEntryAction = async (
   })
 
   redirect(`/reading/${result.data.id}`)
+  return initialState
 }
 
 export interface DeleteReadingEntryActionResult {

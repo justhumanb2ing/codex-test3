@@ -2,6 +2,7 @@ import { redirect } from "next/navigation"
 
 import { ReadingEntryList } from "@/components/reading/reading-entry-list"
 import { ReadingEntryModal } from "@/components/reading/reading-entry-modal"
+import { buildProfileName } from "@/lib/profile-utils"
 import { getCurrentUser } from "@/services/auth-service"
 import { listReadingEntries } from "@/services/reading-log-service"
 import { upsertProfileFromClerkUser } from "@/services/profile-service"
@@ -22,6 +23,15 @@ export default async function ReadingEntriesPage({
   await upsertProfileFromClerkUser(user)
   const result = await listReadingEntries(user.id)
   const entries = result.success && result.data ? result.data : []
+  const metadata = (user.user_metadata ?? {}) as Record<string, unknown>
+  const explicitName = [user.lastName, user.firstName]
+    .filter((part) => typeof part === "string" && part.trim().length > 0)
+    .join(" ")
+    .trim()
+  const currentUserName =
+    explicitName.length > 0
+      ? explicitName
+      : buildProfileName(metadata, user.email ?? undefined)
   const shouldOpenModal =
     typeof searchParams?.compose === "string" &&
     searchParams.compose.toLowerCase() === "new"
@@ -35,7 +45,10 @@ export default async function ReadingEntriesPage({
             읽고 느낀 점을 간단한 키워드와 함께 기록해보세요.
           </p>
         </div>
-        <ReadingEntryModal defaultOpen={shouldOpenModal} />
+        <ReadingEntryModal
+          defaultOpen={shouldOpenModal}
+          currentUserName={currentUserName}
+        />
       </div>
       {!result.success && result.error ? (
         <p className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
