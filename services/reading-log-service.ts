@@ -1,6 +1,10 @@
 
 import { createServerSupabaseClient } from "@/config/supabase"
 import { getProfilesByUserIds } from "@/services/profile-service"
+import {
+  createGraphExtractionService,
+  type GraphExtractionService,
+} from "@/services/graph-extraction-service"
 
 export interface ReadingEntry {
   id: string
@@ -29,6 +33,8 @@ export interface ReadingLogResult<T> {
 const TABLE_NAME = "record"
 const DEFAULT_ERROR_MESSAGE = "독서 기록을 처리하는 중 문제가 발생했습니다."
 
+const graphExtractionService: GraphExtractionService = createGraphExtractionService()
+
 interface ReadingEntryRow {
   id: string
   user_id: string
@@ -53,6 +59,23 @@ const buildErrorResult = <T>(error?: string): ReadingLogResult<T> => ({
 })
 
 /**
+ * 그래프 분석 파이프라인을 실행해 노드/엣지를 생성합니다.
+ */
+const processGraphPipeline = async (row: ReadingEntryRow): Promise<void> => {
+  try {
+    await graphExtractionService.processRecord({
+      recordId: row.id,
+      userId: row.user_id,
+      bookTitle: row.book_title,
+      content: row.content,
+      userKeywords: row.user_keywords ?? [],
+    })
+  } catch (error) {
+    console.error("[reading-log-service] 그래프 분석 처리에 실패했습니다.", error)
+  }
+}
+
+/**
  * 새로운 독서 기록을 생성하고 저장된 결과를 반환합니다.
  */
 export const createReadingEntry = async (
@@ -74,9 +97,12 @@ export const createReadingEntry = async (
     return buildErrorResult(error?.message)
   }
 
+  const row = data as ReadingEntryRow
+  await processGraphPipeline(row)
+
   return {
     success: true,
-    data: mapRowToEntry(data as ReadingEntryRow),
+    data: mapRowToEntry(row),
   }
 }
 
