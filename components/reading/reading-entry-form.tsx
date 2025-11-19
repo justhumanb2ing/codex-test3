@@ -118,6 +118,7 @@ export const ReadingEntryForm = ({
         action={formAction}
         className="flex flex-1 min-h-0 flex-col gap-6 overflow-hidden pb-4"
       >
+        <input type="hidden" name="bookTitle" value={bookTitle} />
         <div className="flex-1 min-h-0 overflow-hidden">
           <Textarea
             id="content"
@@ -127,7 +128,7 @@ export const ReadingEntryForm = ({
             value={content}
             onChange={handleContentChange}
             ref={textareaRef}
-            className="min-h-[12rem] w-full rounded-none border-none bg-transparent p-0 text-base transition focus-visible:border-transparent focus-visible:ring-0 shadow-none resize-none placeholder:text-base overflow-hidden"
+            className="min-h-48 w-full rounded-none border-none bg-transparent p-0 text-base transition focus-visible:border-transparent focus-visible:ring-0 shadow-none resize-none placeholder:text-base overflow-hidden"
             placeholder="어떤 감상이 있었나요?"
           />
         </div>
