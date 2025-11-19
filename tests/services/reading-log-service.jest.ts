@@ -15,6 +15,14 @@ jest.mock("@/services/profile-service", () => ({
   getProfilesByUserIds: jest.fn(),
 }))
 
+let mockProcessRecord: jest.Mock
+
+jest.mock("@/services/graph-extraction-service", () => ({
+  createGraphExtractionService: jest.fn(() => ({
+    processRecord: (...args: unknown[]) => mockProcessRecord(...args),
+  })),
+}))
+
 type SupabaseInsertChain = {
   select: jest.Mock<{
     single: jest.Mock
@@ -84,6 +92,7 @@ const buildRow = () => ({
 describe("reading-log-service", () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockProcessRecord = jest.fn().mockResolvedValue({ success: true })
   })
 
   it("creates a reading entry and returns mapped result", async () => {
@@ -107,6 +116,32 @@ describe("reading-log-service", () => {
       userKeywords: row.user_keywords,
       createdAt: row.created_at,
     })
+    expect(mockProcessRecord).toHaveBeenCalledWith({
+      recordId: row.id,
+      userId: row.user_id,
+      bookTitle: row.book_title,
+      content: row.content,
+      userKeywords: row.user_keywords,
+    })
+  })
+
+  it("keeps creation success even when graph pipeline fails", async () => {
+    const row = buildRow()
+    const client = createInsertClient(row, null)
+    mockedCreateClient.mockResolvedValue(client as never)
+    mockProcessRecord.mockRejectedValueOnce(new Error("graph failure"))
+    const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {})
+
+    const result = await createReadingEntry({
+      userId: "user-1",
+      bookTitle: "데미안",
+      content: "감상문",
+      userKeywords: ["성장"],
+    })
+
+    expect(result.success).toBe(true)
+    expect(consoleSpy).toHaveBeenCalled()
+    consoleSpy.mockRestore()
   })
 
   it("returns error when creation fails", async () => {
