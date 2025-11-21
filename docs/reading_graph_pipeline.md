@@ -1,0 +1,59 @@
+# 독서 그래프 데이터 파이프라인
+
+`services/graph-extraction-service.ts`는 감상문을 분석해 `graph_nodes`, `graph_edges` 테이블을 채우는 서버 전용 파이프라인을 제공합니다. 분석기는 기본적으로 Gemini 2.5 Flash(`services/gemini-graph-analyzer.ts`)를 활용하지만 Provider 패턴으로 테스트 더블이나 다른 AI 모델을 자유롭게 교체할 수 있습니다.
+
+## 동작 개요
+1. `GraphAnalyzer`가 감상문, 책 제목, 사용자 키워드를 입력으로 받아 주제·감정·작가·장르·키워드·요약을 산출합니다.
+2. 파이프라인은 결과를 `GraphNode` 페이로드로 변환하면서 `(user_id, node_type, label)` 조합을 기준으로 중복을 제거합니다. 동일 키워드가 사용자 입력/AI 분석 양쪽에서 등장하면 `metadata.sources`에 두 출처가 모두 기록됩니다.
+3. Supabase `graph_nodes` 테이블에 upsert 후 반환된 노드 ID를 활용해 `GraphEdge` 페이로드를 생성합니다. 책 노드에서 다른 노드로만 엣지를 만들며, 주제/감정 노드에는 가중치(weight)를 반영합니다.
+4. `graph_edges` 테이블까지 upsert가 완료되면 삽입된 노드/엣지 개수와 분석 결과가 호출자에게 반환됩니다.
+
+## 사용법
+```ts
+import { createGraphExtractionService } from "@/services/graph-extraction-service"
+
+const service = createGraphExtractionService()
+await service.processRecord({
+  recordId: "record-1",
+  userId: "user-1",
+  bookTitle: "데미안",
+  content: "감상문 전문",
+  userKeywords: ["자아", "성장"],
+})
+```
+
+- 기본 분석기는 `GEMINI_API_KEY` 환경 변수를 읽어 Gemini 2.5 Flash를 호출합니다. 키가 없다면 서비스 초기화 단계에서 에러가 발생합니다.
+- `createGraphExtractionService({ analyzer })` 혹은 `createGraphExtractionService({ analyzerProvider })` 형태로 다른 분석기를 주입해 자유롭게 교체할 수 있습니다.
+- `processRecord`는 upsert된 노드/엣지 개수를 통해 파이프라인의 상태를 파악할 수 있게 합니다.
+- 모든 노드는 `metadata` 필드를 통해 AI 요약, 감정 강도, 출처 정보 등 확장 데이터를 담습니다.
+
+## 장애 처리
+- 분석 단계 실패 → `success: false`와 에러 메시지를 즉시 반환하며 DB 호출은 진행하지 않습니다.
+- 노드 또는 엣지 upsert 실패 → Supabase 에러 메시지를 그대로 전달하므로 호출 측에서 재시도/알람을 구현할 수 있습니다.
+- 엣지를 생성할 수 없는 경우(예: 분석 결과 없음)에는 노드만 저장하고 `edgesInserted: 0`으로 응답합니다.
+
+## 서비스 롤 기반 그래프 뷰 API
+그래프 데이터를 전 사용자에게 노출할 때는 테이블 RLS 정책을 유지한 채 서버 전용 API를 통해서만 접근합니다.
+
+- `config/supabase.ts`에 `createServiceRoleSupabaseClient`가 추가되어 service role 키로 Supabase를 초기화합니다. 이 키는 서버 환경 변수(`SUPABASE_SERVICE_ROLE_KEY`)에만 존재하며 클라이언트로 노출되지 않습니다.
+- `services/graph-visualization-service.ts`는 service role 클라이언트를 주입받아 `graph_nodes`, `graph_edges`를 조회하고, `recordId`나 `user_id` 같은 민감 필드는 제거한 뒤 그래프 뷰에 필요한 필드만 반환합니다.
+- `/api/graph` 라우트는 모든 사용자가 호출할 수 있는 공개 API입니다. 내부적으로 service role 서비스만 호출하므로 프런트엔드에서는 Supabase 키를 다루지 않습니다.
+- 지원 파라미터:
+  - `nodeTypes`, `edgeTypes`: `book, topic, emotion, author, genre, keyword` 및 `book_topic, book_emotion, ...` 등의 값을 쉼표로 구분해 필터링합니다.
+  - `startDate`, `endDate`: ISO 문자열 기준으로 생성일 범위를 제한합니다.
+  - `nodeLimit`, `edgeLimit`: 기본(200/400)에서 필요한 만큼 조정 가능하며 내부적으로 상한(1000/2000)을 둡니다.
+- 응답 형태:
+```json
+{
+  "data": {
+    "nodes": [
+      { "id": "uuid", "label": "데미안", "nodeType": "book", "metadata": { "aiSummary": "..." }, "createdAt": "2024-02-01T00:00:00Z" }
+    ],
+    "edges": [
+      { "id": "uuid", "source": "book-id", "target": "topic-id", "edgeType": "book_topic", "weight": 0.92, "createdAt": "2024-02-01T00:00:00Z" }
+    ]
+  }
+}
+```
+
+이 구조를 통해 그래프 뷰는 Cytoscape.js/vis-network에서 필요한 최소 데이터만 안전하게 렌더링할 수 있습니다.
